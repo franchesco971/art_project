@@ -24,7 +24,7 @@ class Carte
     /**
      * @var string
      *
-     * @ORM\Column(name="carte_label", type="string", length=255)
+     * @ORM\Column(name="carte_label", type="string", length=255,nullable=true)
      */
     private $carteLabel;
 
@@ -45,7 +45,7 @@ class Carte
      * @ORM\OneToMany(targetEntity="Repere", mappedBy="carte")
      */
     private $reperes;
-
+        
     /**
      * Get id
      *
@@ -109,6 +109,7 @@ class Carte
     public function __construct()
     {
         $this->reperes = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->createdAt = new \DateTime('NOW');
     }
 
     /**

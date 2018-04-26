@@ -61,7 +61,6 @@ class Texte
      */
     private $reperes;
 
-
     /**
      * Get id
      *
@@ -197,6 +196,7 @@ class Texte
     public function __construct()
     {
         $this->reperes = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->createdAt = new \DateTime('NOW');
     }
 
     /**

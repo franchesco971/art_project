@@ -5,14 +5,19 @@
             {{ parent() }}
         <style>
             body .modal-dialog { /* Width */
-    max-width: 1000px;
-    width: auto !important;
-}
+                max-width: 1000px;
+                width: auto !important;
+            }
+            .plus_case{
+                cursor: pointer;
+            }
         </style>
     {% endblock %}
     
     {% block body %}
         <h1>Art project</h1>
+        
+        <h2>Carte n°{{carte.id}}</h2>
         {% set largeur_total = 2000 %}
         {% set dim_carree = 20 %}
         {% set nb_carree = largeur_total/dim_carree %}
@@ -25,7 +30,7 @@
 {#        for ($i = 1; $i <= $nb_carree; $i++) {#}
             {% for j in 1..nb_carree %}
 {#            for ($j = 1; $j <= $nb_carree; $j++) {  ?>#}
-                <div class="plus_case" style="width: 20px;height: 20px;float: left" data-abcisse="{{i}}" data-ordonnee="{{j}}" data-carte-id="1" title="{{ i~','~j }}" >+</div>
+                <div class="plus_case" style="width: 20px;height: 20px;float: left" data-abcisse="{{i}}" data-ordonnee="{{j}}" data-carte-id="{{carte.id}}" title="{{ i~','~j }}" >+</div>
 {#        <?php    }#}
             {% endfor %}
 {#        }?>#}
@@ -115,11 +120,12 @@
                 var calculateRepere = function(element) {
                     datas = element.data();
                     $.ajax({
-                        url:"/calculate-repere",
+                        url:"{{ path('caculateRepere')}}",
                         method:"POST",
                         data: datas
                     })
                     .done(function(){
+                        //html
                         $('.modal').modal('toggle');    
                     });
                     
