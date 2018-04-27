@@ -36,18 +36,17 @@ class Repere
     private $ordonnee;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="couleur", type="string", length=255)
+     * @ORM\ManyToOne(targetEntity="Couleur", inversedBy="reperes")
+     * @ORM\JoinColumn(name="couleur_id", referencedColumnName="id")
      */
     private $couleur;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="couleur_proxy", type="string", length=255)
+     * @ORM\Column(name="major", type="boolean")
      */
-    private $couleurProxy;
+    private $major;
 
     /**
      * @var \DateTime
@@ -131,53 +130,6 @@ class Repere
         return $this->ordonnee;
     }
 
-    /**
-     * Set couleur
-     *
-     * @param string $couleur
-     *
-     * @return Repere
-     */
-    public function setCouleur($couleur)
-    {
-        $this->couleur = $couleur;
-
-        return $this;
-    }
-
-    /**
-     * Get couleur
-     *
-     * @return string
-     */
-    public function getCouleur()
-    {
-        return $this->couleur;
-    }
-
-    /**
-     * Set couleurProxy
-     *
-     * @param string $couleurProxy
-     *
-     * @return Repere
-     */
-    public function setCouleurProxy($couleurProxy)
-    {
-        $this->couleurProxy = $couleurProxy;
-
-        return $this;
-    }
-
-    /**
-     * Get couleurProxy
-     *
-     * @return string
-     */
-    public function getCouleurProxy()
-    {
-        return $this->couleurProxy;
-    }
 
     /**
      * Set createdAt
@@ -208,6 +160,7 @@ class Repere
     public function __construct()
     {
         $this->textes = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->major = false;
     }
 
     /**
@@ -290,5 +243,53 @@ class Repere
     public function getTextes()
     {
         return $this->textes;
+    }
+
+    /**
+     * Set major
+     *
+     * @param boolean $major
+     *
+     * @return Repere
+     */
+    public function setMajor($major)
+    {
+        $this->major = $major;
+
+        return $this;
+    }
+
+    /**
+     * Get major
+     *
+     * @return boolean
+     */
+    public function getMajor()
+    {
+        return $this->major;
+    }
+
+    /**
+     * Set couleur
+     *
+     * @param \AppBundle\Entity\Couleur $couleur
+     *
+     * @return Repere
+     */
+    public function setCouleur(\AppBundle\Entity\Couleur $couleur = null)
+    {
+        $this->couleur = $couleur;
+
+        return $this;
+    }
+
+    /**
+     * Get couleur
+     *
+     * @return \AppBundle\Entity\Couleur
+     */
+    public function getCouleur()
+    {
+        return $this->couleur;
     }
 }

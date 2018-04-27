@@ -10,4 +10,13 @@ namespace AppBundle\Repository;
  */
 class ImageRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getRandomEntity()
+    {
+        return  $this->createQueryBuilder('q')
+            ->addSelect('RAND() as HIDDEN rand')
+            ->addOrderBy('rand')
+            ->getQuery()
+            ->getOneOrNullResult();
+        
+    }    
 }

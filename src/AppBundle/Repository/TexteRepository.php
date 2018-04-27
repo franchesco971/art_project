@@ -10,4 +10,23 @@ namespace AppBundle\Repository;
  */
 class TexteRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getRandomEntity()
+    {
+        return  $this->createQueryBuilder('t')
+            ->addSelect('RAND() as HIDDEN rand')
+            ->addOrderBy('rand')
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+    
+    public function getSecondRandomEntity($auteur)
+    {
+        return  $this->createQueryBuilder('t')
+            ->addSelect('RAND() as HIDDEN rand')
+            ->addOrderBy('rand')
+                ->where('t.auteur <> :auteur')
+            ->setParameter('auteur', $auteur)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

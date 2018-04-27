@@ -24,7 +24,7 @@ class Carte
     /**
      * @var string
      *
-     * @ORM\Column(name="carte_label", type="string", length=255,nullable=true)
+     * @ORM\Column(name="carte_label", type="string", length=255, nullable=true)
      */
     private $carteLabel;
 

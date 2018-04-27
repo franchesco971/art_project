@@ -37,6 +37,10 @@ framework:
 twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
+    
+#    form_themes:
+#        # other form themes
+#        - 'VichUploaderBundle:Form:fields.html.twig'
 
 # Doctrine Configuration
 doctrine:
@@ -59,6 +63,9 @@ doctrine:
         auto_generate_proxy_classes: '%kernel.debug%'
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
+        dql:
+            numeric_functions:
+                Rand: AppBundle\DQL\RandFunction
 
 # Swiftmailer Configuration
 swiftmailer:
@@ -76,15 +83,15 @@ fos_user:
         address: "%mailer_user%"
         sender_name: "%mailer_user%"
         
-vich_uploader:
-    db_driver: orm # or mongodb or propel or phpcr
-    storage: file_system
-    
-    mappings:
-        product_image:
-            uri_prefix: /images/upload
-            upload_destination: %kernel.root_dir%/../web/images/upload
-            
-            inject_on_load:     true
-            delete_on_update:   true
-            delete_on_remove:   true
+#vich_uploader:
+#    db_driver: orm 
+#    
+#    mappings:
+#        uploaded_images:
+#            uri_prefix: /images/upload
+#            upload_destination: %kernel.root_dir%/../web/images/upload
+#            namer: vich_uploader.namer_uniqid
+#            
+#            inject_on_load:     false
+#            delete_on_update:   true
+#            delete_on_remove:   true
