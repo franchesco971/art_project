@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Image</h1>
+{#    <a href="{{ asset('uploads/brochures/' ~ image.imageName) }}">View brochure (PDF)</a>#}
+    <img src="{{ asset('images/upload/' ~ image.imageName) }}" />
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ image.id }}</td>
+            </tr>
+            <tr>
+                <th>Imagelabel</th>
+                <td>{{ image.imageLabel }}</td>
+            </tr>
+            <tr>
+                <th>Imagename</th>
+                <td>{{ image.imageName }}</td>
+            </tr>
+            <tr>
+                <th>Createdat</th>
+                <td>{% if image.createdAt %}{{ image.createdAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('admin_image_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a href="{{ path('admin_image_edit', { 'id': image.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

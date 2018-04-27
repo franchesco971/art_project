@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Texte</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ texte.id }}</td>
+            </tr>
+            <tr>
+                <th>Textelabel</th>
+                <td>{{ texte.texteLabel }}</td>
+            </tr>
+            <tr>
+                <th>Content</th>
+                <td>{{ texte.content }}</td>
+            </tr>
+            <tr>
+                <th>Auteur</th>
+                <td>{{ texte.auteur }}</td>
+            </tr>
+            <tr>
+                <th>Livre</th>
+                <td>{{ texte.livre }}</td>
+            </tr>
+            <tr>
+                <th>Createdat</th>
+                <td>{% if texte.createdAt %}{{ texte.createdAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('admin_texte_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a href="{{ path('admin_texte_edit', { 'id': texte.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

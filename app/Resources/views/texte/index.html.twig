@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Textes list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Textelabel</th>
+                <th>Content</th>
+                <th>Auteur</th>
+                <th>Livre</th>
+                <th>Createdat</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for texte in textes %}
+            <tr>
+                <td><a href="{{ path('admin_texte_show', { 'id': texte.id }) }}">{{ texte.id }}</a></td>
+                <td>{{ texte.texteLabel }}</td>
+                <td>{{ texte.content }}</td>
+                <td>{{ texte.auteur }}</td>
+                <td>{{ texte.livre }}</td>
+                <td>{% if texte.createdAt %}{{ texte.createdAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('admin_texte_show', { 'id': texte.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('admin_texte_edit', { 'id': texte.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('admin_texte_new') }}">Create a new texte</a>
+        </li>
+    </ul>
+{% endblock %}
