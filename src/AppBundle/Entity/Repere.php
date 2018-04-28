@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * Repere
@@ -58,6 +59,7 @@ class Repere
     /**
      * @ORM\ManyToOne(targetEntity="Carte", inversedBy="reperes")
      * @ORM\JoinColumn(name="carte_id", referencedColumnName="id")
+     * @JMS\Exclude()
      */
     private $carte;
     
@@ -161,6 +163,7 @@ class Repere
     {
         $this->textes = new \Doctrine\Common\Collections\ArrayCollection();
         $this->major = false;
+        $this->createdAt = new \DateTime('NOW');
     }
 
     /**

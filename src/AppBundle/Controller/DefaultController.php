@@ -11,6 +11,7 @@ use AppBundle\Entity\Repere;
 use AppBundle\Entity\Image;
 use AppBundle\Entity\Texte;
 use AppBundle\Entity\Couleur;
+use JMS\Serializer\SerializerBuilder;
 
 class DefaultController extends Controller
 {
@@ -31,16 +32,29 @@ class DefaultController extends Controller
     public function projectAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        
         $user = $this->getUser();
-        $carte = new Carte();
-        $carte->setUser($user);
+        $tabReperes = [];
         
-        $em->persist($carte);
-        $em->flush();                                      
+        $carte = $em->getRepository(Carte::class)->findOneBy(['user'=>$user],['createdAt'=>'DESC']);
         
+        if(!$carte) {
+            $carte = new Carte();
+            $carte->setUser($user);
+
+            $em->persist($carte);
+            $em->flush();
+        } else {
+            $reperes = $em->getRepository(Repere::class)->findBy(['carte'=>$carte]);
+            foreach ($reperes as $repere) {
+                $couleur = $repere->getCouleur();
+                $tabReperes[$repere->getAbcisse()][$repere->getOrdonnee()] = ($repere->getMajor())?$couleur->getMajor():$couleur->getProxy();
+            }
+            dump($tabReperes);
+        }       
+                                                              
         return $this->render('default/project.html.twig', [
             'carte' => $carte,
+            'reperes' => $tabReperes
         ]);
     }
     
@@ -51,38 +65,52 @@ class DefaultController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $data = $request->request->all();
-        $carte = $em->getRepository(Carte::class)->find($data['carteId']);
+        $carteId = (int)$data['carteId'];
+        $abcissse = (int)$data['abcisse'];
+        $ordonnee = (int)$data['ordonnee'];
+        $carte = $em->getRepository(Carte::class)->find($carteId);
         dump($carte);
-        $abcissse = $data['abcisse'];
-        $ordonnee = $data['ordonnee'];
         
-        $exist_repere = $em->getRepository(Repere::class)->findOneBy(['carte'=>$data['carteId'], 'abcisse'=>$abcissse, 'ordonnee'=>$ordonnee]);
+//        $encoder = [new JsonEncoder()];
+//        $normalizers = [new ObjectNormalizer()];
+        $serializer = SerializerBuilder::create()->build();
         
-        if(!$exist_repere)
-        {
+        $repere = $em->getRepository(Repere::class)->findOneBy(['carte'=>$carteId, 'abcisse'=>$abcissse, 'ordonnee'=>$ordonnee]);
         
+        
+        if(!$repere) {
+            dump("le repere n'existe pas");
     //       A metre dans l'entité carte
             $maxItemCarte = 100;
 
-            $abcissseMin = $abcissse--;
+            $abcissseMin = $abcissse-1;
     //        while ($abcissse < 0) {
     //            $abcissse++;
     //        }
-            $abcisseMax = $abcissse++;
+            $abcisseMax = $abcissse+1;
 
-            $ordonneeMin = $ordonnee--;
+            $ordonneeMin = $ordonnee-1;
     //        while ($ordonnee > $maxItemCarte) {
     //            $maxItemCarte--;
     //        }
-            $ordonneeMax = $ordonnee++;
+            $ordonneeMax = $ordonnee+1;
 
             $reperes = $images = $textes = [];
             $couleur = null;
+            
             for($i = $abcissseMin;$i <=$abcisseMax; $i++){
                 for($j = $ordonneeMin;$j <=$ordonneeMax; $j++){
                     //une petite fonction?
-                    if(0 >= $i && $i<=$maxItemCarte && 0 >= $j && $j <= $maxItemCarte && $i != $abcissse && $j != $ordonnee){
-                        $repere = $em->getRepository(Repere::class)->findOneBy(['carte'=>$data['carteId'], 'abcisse'=>$abcissse, 'ordonnee'=>$ordonnee]);
+//                    dump($i);dump($j);
+//                    dump(($i >= 0 && $i<=$maxItemCarte));
+//                    dump(($j >= 0 && $j <= $maxItemCarte));
+//                    dump(($i != $abcissse));
+//                    dump(($i == $abcissse && $j == $ordonnee));
+//                    dump(!($i == $abcissse && $j == $ordonnee));
+                    if($i >= 0 && $i<=$maxItemCarte && $j >= 0 && $j <= $maxItemCarte && !($i == $abcissse && $j == $ordonnee)){
+                        $repere = $em->getRepository(Repere::class)->findOneBy(['carte'=>$carteId, 'abcisse'=>$i, 'ordonnee'=>$j]);
+//                        dump($data['carteId']);dump($i);dump($j);
+//                        dump($repere);
                         if($repere){
                             $reperes[] = $repere;
                             $images[] = $repere->getImage();
@@ -104,51 +132,56 @@ class DefaultController extends Controller
                 
                 $repere->setAbcisse($abcissse)
                         ->setOrdonnee($ordonnee)
-                        ->setMajor(true)
+                        ->setMajor(false)
                         ->setCarte($carte);
 
                 if($resultat == 'texte') // on choisit un texte aléatoirement
                 {                    
-                    do {
-                    
+                    do {                    
                         $texte = $em->getRepository(Texte::class)->getRandomEntity();
 
-                        $image_rand = array_rand($images);
+                        $image_rand = $images[array_rand($images)];
+                        
+                        do {
+                            $texte_rand = $textes[array_rand($textes)];
+                        } while ($texte->getId() == $texte_rand->getId());                        
 
-                        $texte_rand = array_rand($textes);
-
-                        $exist_repere = $em->getRepository(Repere::class)->findOneBy(['carte'=>$data['carteId'], 'image'=>$image_rand, 'textes'=>[$texte,$texte_rand]]);
+                        $exist_repere = $em->getRepository(Repere::class)->getByTexteImage($carteId, $image_rand->getId(), $texte->getId(), $texte_rand->getId());
                     } while ($exist_repere);
                     
                     $repere->setImage($image_rand)->addTexte($texte)->addTexte($texte_rand);
                         
                 } else {
                     
-                    do {
-                    
-                    $image = $em->getRepository(Image::class)->getRandomEntity();
+                    do {                    
+                        $image = $em->getRepository(Image::class)->getRandomEntity();
 
-                    $texte_rand1 = array_rand($textes);
-                    
-                    $texte_rand2 = array_rand($textes);
+                        $texte_rand1 = $textes[array_rand($textes)];
 
-                    $exist_repere = $em->getRepository(Repere::class)->findOneBy(['carte'=>$data['carteId'], 'image'=>$image, 'textes'=>[$texte_rand1,$texte_rand2]]);
-                    } while ($exist_repere);
+                        do {
+                            $texte_rand2 = $textes[array_rand($textes)];
+                        } while ($texte_rand1->getId() == $texte_rand2->getId());                                                             
+
+                        $exist_repere = $em->getRepository(Repere::class)->getByTexteImage($carteId, $image->getId(), $texte_rand1->getId(), $texte_rand2->getId());
+                    } while ($exist_repere);                                       
                     
                     $repere->setImage($image)->addTexte($texte_rand1)->addTexte($texte_rand2);                    
                 }
                 
+                dump($couleur);
                 if(!$couleur){
                     $couleur = $em->getRepository(Couleur::class)->getRandomEntity();                
                 }
                 
                 $repere->setCouleur($couleur);
+                dump($repere);
                 
                 $em->persist($repere);
 
 
 
             } else {
+                dump("pas de points");
                 $repere = new Repere();
                 $repere->setAbcisse($abcissse)
                         ->setOrdonnee($ordonnee)
@@ -162,7 +195,7 @@ class DefaultController extends Controller
                 $repere->setImage($image);
 
                 $text1 = $em->getRepository(Texte::class)->getRandomEntity();
-                $text2 = $em->getRepository(Texte::class)->getSecondRandomEntity($text1->getAuteur());
+                $text2 = $em->getRepository(Texte::class)->getSecondRandomEntity($text1->getAuteur(),$text1->getId());
                 $repere->addTexte($text1);
                 $repere->addTexte($text2);
 
@@ -171,11 +204,17 @@ class DefaultController extends Controller
             
             $em->flush();
             
-            $result = json_encode($repere);
+            
         
-        } else {
-            $result = json_encode($exist_repere);
-        }
+        } 
+//        else {
+//            dump('le repere existe');
+//            dump($exist_repere);
+//            $result = json_encode($exist_repere);
+//            dump($result);
+//        }
+        dump($repere);
+        $result = $serializer->serialize($repere, 'json');
         
         return new JsonResponse(['result'=>$result]);
     }

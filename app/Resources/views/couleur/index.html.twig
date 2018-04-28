@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Couleurs list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Major</th>
+                <th>Proxy</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for couleur in couleurs %}
+            <tr>
+                <td><a href="{{ path('admin_couleur_show', { 'id': couleur.id }) }}">{{ couleur.id }}</a></td>
+                <td>{{ couleur.major }}</td>
+                <td>{{ couleur.proxy }}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('admin_couleur_show', { 'id': couleur.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('admin_couleur_edit', { 'id': couleur.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('admin_couleur_new') }}">Create a new couleur</a>
+        </li>
+    </ul>
+{% endblock %}

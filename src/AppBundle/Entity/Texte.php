@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * Texte
@@ -58,6 +59,7 @@ class Texte
     
     /**
      * @ORM\OneToMany(targetEntity="Repere", mappedBy="carte")
+     * @JMS\Exclude()
      */
     private $reperes;
 

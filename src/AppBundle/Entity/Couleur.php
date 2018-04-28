@@ -36,7 +36,7 @@ class Couleur
     private $proxy;
     
     /**
-     * @ORM\OneToMany(targetEntity="Repere", mappedBy="carte")
+     * @ORM\OneToMany(targetEntity="Repere", mappedBy="couleur")
      */
     private $reperes;
 

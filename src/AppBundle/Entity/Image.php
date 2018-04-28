@@ -7,6 +7,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * Image
@@ -42,15 +43,6 @@ class Image
      * )
      */
     private $imageName;
-    
-    /**
-     * NOTE: This is not a mapped field of entity metadata, just a simple property.
-     * 
-     * @Vich\UploadableField(mapping="uploaded_images", fileNameProperty="imageName")
-     * 
-     * @var File
-     */
-    private $imageFile;
 
     /**
      * @var \DateTime
@@ -61,40 +53,9 @@ class Image
     
     /**
      * @ORM\OneToMany(targetEntity="Repere", mappedBy="image")
+     * @JMS\Exclude()
      */
     private $reperes;
-    
-    /**
-     * If manually uploading a file (i.e. not using Symfony Form) ensure an instance
-     * of 'UploadedFile' is injected into this setter to trigger the  update. If this
-     * bundle's configuration parameter 'inject_on_load' is set to 'true' this setter
-     * must be able to accept an instance of 'File' as the bundle will inject one here
-     * during Doctrine hydration.
-     *
-     * @param File|UploadedFile $image
-     *
-     * @return Product
-     */
-//    public function setImageFile(File $image = null)
-//    {
-//        $this->imageFile = $image;
-////        dump($image);
-//        if ($this->imageFile instanceof UploadedFile) {
-//            // It is required that at least one field changes if you are using doctrine
-//            // otherwise the event listeners won't be called and the file is lost
-//            $this->createdAt = new \DateTimeImmutable();
-//        }
-//        
-//        return $this;
-//    }
-    
-    /**
-     * @return File|UploadedFile
-     */
-    public function getImageFile()
-    {
-        return $this->imageFile;
-    }
 
     /**
      * Get id

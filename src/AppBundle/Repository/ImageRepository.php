@@ -15,6 +15,7 @@ class ImageRepository extends \Doctrine\ORM\EntityRepository
         return  $this->createQueryBuilder('q')
             ->addSelect('RAND() as HIDDEN rand')
             ->addOrderBy('rand')
+            ->setMaxResults(1)    
             ->getQuery()
             ->getOneOrNullResult();
         

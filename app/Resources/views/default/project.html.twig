@@ -20,17 +20,25 @@
         <h2>Carte n°{{carte.id}}</h2>
         {% set largeur_total = 2000 %}
         {% set dim_carree = 20 %}
-        {% set nb_carree = largeur_total/dim_carree %}
+        {% set nb_carree = (largeur_total/dim_carree)-1 %}
         
         <div style="width:2000px;min-height: 500px">
 {#        <?php #}
         <div style="{{ "width:"~ largeur_total ~" px;min-height: 500px"}}">
-        {{nb_carree}}
-        {% for i in 1..nb_carree %}
+        {% for i in 0..nb_carree %}
 {#        for ($i = 1; $i <= $nb_carree; $i++) {#}
-            {% for j in 1..nb_carree %}
+            {% for j in 0..nb_carree %}
 {#            for ($j = 1; $j <= $nb_carree; $j++) {  ?>#}
-                <div class="plus_case" style="width: 20px;height: 20px;float: left" data-abcisse="{{i}}" data-ordonnee="{{j}}" data-carte-id="{{carte.id}}" title="{{ i~','~j }}" >+</div>
+                {% set color = "" %}
+                {% if reperes[i][j] is defined %}
+                    {% set color = "background-color :"~reperes[i][j] %}
+                {% endif %}
+                {% set largeur_total = 2000 %}
+                <div class="plus_case class{{i~'-'~j}}" style="width: 20px;height: 20px;text-align: center;vertical-align: middle;float: left;{{color}}" 
+                     data-abcisse="{{i}}" data-ordonnee="{{j}}" data-carte-id="{{carte.id}}" title="{{ i~','~j }}" >
+                    <div style="line-height:1em">+</div>
+                        
+                </div>
 {#        <?php    }#}
             {% endfor %}
 {#        }?>#}
@@ -47,13 +55,13 @@
                   </button>
                 </div>
                 <div class="modal-body">
-                    <div style="width: 250px;min-height: 200px; float: left;">
+                    <div id="texte1" style="width: 250px;min-height: 200px; float: left;">
                         Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un peintre anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
                     </div>
-                    <div style="width: 450px;min-height: 200px; float: left;">
+                    <div id="img_modal" style="width: 450px;min-height: 200px; float: left;">
                         <img src="https://www.jqueryscript.net/images/Simplest-Responsive-jQuery-Image-Lightbox-Plugin-simple-lightbox.jpg" width="450" />
                     </div>
-                    <div style="width: 250px;min-height: 200px; float: left;">
+                    <div id="texte2" style="width: 250px;min-height: 200px; float: left;">
                         Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un peintre anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
                     </div>
                 </div>
@@ -101,14 +109,14 @@
     <script type="text/javascript">
             $(document).ready(function(){
                  $(".plus_case").hover(function(){
-                        $(this).css({
+                        $(this).find('div').css({
                             "transform": "rotate(30deg)",
                             "-moz-transform": 'rotate(30deg)',
                             "-webkit-transform": "rotate(30deg)"
                         }, "slow");
                     }
                  ,function(){
-                    $(this).css({
+                    $(this).find('div').css({
                         "transform": "rotate(0deg)",
                         "-moz-transform": 'rotate(0deg)',
                         "-webkit-transform": "rotate(0deg)"
@@ -124,8 +132,28 @@
                         method:"POST",
                         data: datas
                     })
-                    .done(function(){
+                    .done(function(data){
                         //html
+                        var repere = JSON.parse(data.result);
+                        var abcisse = repere.abcisse;
+                        var ordonnee = repere.ordonnee;
+                        var classe = ".class"+abcisse+"-"+ordonnee;
+                        console.log(repere);
+                        
+                        $('.modal-body #texte1').html(repere.textes[0].content);
+                        $('.modal-body #img_modal img').attr("src","/web/images/upload/"+repere.image.image_name);
+                        $('.modal-body #texte2').html(repere.textes[1].content);
+                        
+                        console.log(repere.major);
+                        console.log(classe);
+                        console.log($(classe));
+                        if(repere.major == true) {
+                            $(classe).css("background-color",repere.couleur.major);
+                        } else {
+                            $(classe).css("background-color",repere.couleur.proxy);
+                        }
+                        
+                        
                         $('.modal').modal('toggle');    
                     });
                     

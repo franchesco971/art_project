@@ -10,4 +10,32 @@ namespace AppBundle\Repository;
  */
 class RepereRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getSimple($carteId, $abcisse, $ordonnee) {
+        $q = $this->createQueryBuilder('r')
+                ->join('r.image', 'i')
+                ->join('r.textes', 't')
+                ->where('r.carte = :carte')
+                ->andWhere('r.abcisse = :abcisse')
+                ->andWhere('r.ordonnee = :ordonnee')
+                ->setParameter('carte', $carteId)
+                ->setParameter('abcisse', $abcisse)
+                ->setParameter('ordonnee', $ordonnee)
+                ->select('r','i','t');
+        
+        return $q->getQuery()->getOneOrNullResult();
+    }
+    
+    public function getByTexteImage($carteId, $image, $texte1, $texte2) {
+        $q = $this->createQueryBuilder('r')
+                ->join('r.image', 'i')
+                ->join('r.textes', 't')
+                ->join('r.textes', 'te')
+                ->where('r.carte = :carte')
+                ->setParameter('carte', $carteId)
+                ->andWhere('r.image = :image')->setParameter('image', $image)
+                ->andWhere('t.id = :texte1')->setParameter('texte1', $texte1)
+                ->andWhere('te.id = :texte2')->setParameter('texte2', $texte2);
+                
+        return $q->getQuery()->getOneOrNullResult();        
+    }
 }

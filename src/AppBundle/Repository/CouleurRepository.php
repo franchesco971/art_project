@@ -16,6 +16,7 @@ class CouleurRepository extends \Doctrine\ORM\EntityRepository
             ->addSelect('RAND() as HIDDEN rand')
             ->addOrderBy('rand')
             ->getQuery()
+            ->setMaxResults(1)
             ->getOneOrNullResult();
     }
 }
