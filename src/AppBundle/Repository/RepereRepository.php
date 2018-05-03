@@ -36,6 +36,6 @@ class RepereRepository extends \Doctrine\ORM\EntityRepository
                 ->andWhere('t.id = :texte1')->setParameter('texte1', $texte1)
                 ->andWhere('te.id = :texte2')->setParameter('texte2', $texte2);
                 
-        return $q->getQuery()->getOneOrNullResult();        
+        return $q->getQuery()->getResult();        
     }
 }

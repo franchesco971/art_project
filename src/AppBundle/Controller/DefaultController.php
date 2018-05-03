@@ -82,18 +82,19 @@ class DefaultController extends Controller
             dump("le repere n'existe pas");
     //       A metre dans l'entité carte
             $maxItemCarte = 100;
+            $rayon = 2;
 
-            $abcissseMin = $abcissse-1;
+            $abcissseMin = $abcissse-$rayon;
     //        while ($abcissse < 0) {
     //            $abcissse++;
     //        }
-            $abcisseMax = $abcissse+1;
+            $abcisseMax = $abcissse+$rayon;
 
-            $ordonneeMin = $ordonnee-1;
+            $ordonneeMin = $ordonnee-$rayon;
     //        while ($ordonnee > $maxItemCarte) {
     //            $maxItemCarte--;
     //        }
-            $ordonneeMax = $ordonnee+1;
+            $ordonneeMax = $ordonnee+$rayon;
 
             $reperes = $images = $textes = [];
             $couleur = null;
@@ -147,7 +148,7 @@ class DefaultController extends Controller
                         } while ($texte->getId() == $texte_rand->getId());                        
 
                         $exist_repere = $em->getRepository(Repere::class)->getByTexteImage($carteId, $image_rand->getId(), $texte->getId(), $texte_rand->getId());
-                    } while ($exist_repere);
+                    } while (!empty($exist_repere));
                     
                     $repere->setImage($image_rand)->addTexte($texte)->addTexte($texte_rand);
                         
@@ -163,7 +164,7 @@ class DefaultController extends Controller
                         } while ($texte_rand1->getId() == $texte_rand2->getId());                                                             
 
                         $exist_repere = $em->getRepository(Repere::class)->getByTexteImage($carteId, $image->getId(), $texte_rand1->getId(), $texte_rand2->getId());
-                    } while ($exist_repere);                                       
+                    } while (!empty($exist_repere));                                       
                     
                     $repere->setImage($image)->addTexte($texte_rand1)->addTexte($texte_rand2);                    
                 }
