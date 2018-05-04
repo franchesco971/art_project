@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Login{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/floating-labels.css') }}" >
+{% endblock %}
+
+{% block body %}
+    {% block fos_user_content %}{% endblock %}
+{% endblock %}

@@ -12,11 +12,12 @@ use AppBundle\Entity\Image;
 use AppBundle\Entity\Texte;
 use AppBundle\Entity\Couleur;
 use JMS\Serializer\SerializerBuilder;
+use Psr\Log\LoggerInterface;
 
 class DefaultController extends Controller
 {
     /**
-     * @Route("/", name="homepage")
+     * @Route("/test", name="homepage")
      */
     public function indexAction(Request $request)
     {
@@ -27,7 +28,7 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/project", name="project")
+     * @Route("/", name="project")
      */
     public function projectAction(Request $request)
     {
@@ -61,7 +62,7 @@ class DefaultController extends Controller
     /**
      * @Route("/caculate-repere", name="caculateRepere")
      */
-    public function caculateRepereAction(Request $request)
+    public function caculateRepereAction(Request $request,LoggerInterface $logger)
     {
         $em = $this->getDoctrine()->getManager();
         $data = $request->request->all();
@@ -80,6 +81,7 @@ class DefaultController extends Controller
         
         if(!$repere) {
             dump("le repere n'existe pas");
+            $logger->info("caculateRepereAction : le repere n'existe pas");
     //       A metre dans l'entité carte
             $maxItemCarte = 100;
             $rayon = 2;
@@ -113,7 +115,11 @@ class DefaultController extends Controller
 //                        dump($data['carteId']);dump($i);dump($j);
 //                        dump($repere);
                         if($repere){
-                            $reperes[] = $repere;
+                            $texteTab = [];
+                            foreach ($repere->getTextes() as $texte) {
+                                $texteTab[] = $texte->getId();
+                            }
+                            $reperes[] = [$repere->getImage()->getId()=>$texteTab];
                             $images[] = $repere->getImage();
                             $textes = array_merge($textes, $repere->getTextes()->toArray()) ;
                             if($repere->getMajor()){
@@ -127,6 +133,8 @@ class DefaultController extends Controller
 
             if(count($reperes)>0)// il y dejà des points
             {
+                dump("il y dejà des points");
+                $logger->info("caculateRepereAction : il y dejà des points");
                 $resultat = array_rand(['texte','image']);
                 $exist_repere = null;
                 $repere = new Repere();
@@ -140,15 +148,37 @@ class DefaultController extends Controller
                 {                    
                     do {                    
                         $texte = $em->getRepository(Texte::class)->getRandomEntity();
-
+//
                         $image_rand = $images[array_rand($images)];
-                        
+//                        
                         do {
                             $texte_rand = $textes[array_rand($textes)];
                         } while ($texte->getId() == $texte_rand->getId());                        
+                        
+                        $tabTxtToCompare = [$texte->getId(), $texte_rand->getId()];
+//                        $exist_repere = $em->getRepository(Repere::class)->getByTexteImage($carteId, $image_rand->getId(), $texte->getId(), $texte_rand->getId());
+//                    } while (!empty($exist_repere));
+                        
+                        $exist = false;
+                        
+                        foreach ($reperes as $repereTab) {                        
+                            if(!$exist) {
+                                foreach ($repereTab as $imageId => $tabTexte) {
+                                    if($imageId == $image_rand->getId()) {
+                                        $intersect = array_intersect($tabTexte, $tabTxtToCompare);
 
-                        $exist_repere = $em->getRepository(Repere::class)->getByTexteImage($carteId, $image_rand->getId(), $texte->getId(), $texte_rand->getId());
-                    } while (!empty($exist_repere));
+                                        if(count($intersect) == 2) {
+                                            $exist = true;
+                                            continue;
+                                        }
+                                    }
+
+                                }    
+                            } else {
+                                continue;
+                            }
+                        }
+                    } while ($exist);
                     
                     $repere->setImage($image_rand)->addTexte($texte)->addTexte($texte_rand);
                         
@@ -161,21 +191,45 @@ class DefaultController extends Controller
 
                         do {
                             $texte_rand2 = $textes[array_rand($textes)];
-                        } while ($texte_rand1->getId() == $texte_rand2->getId());                                                             
+                        } while ($texte_rand1->getId() == $texte_rand2->getId());  
+                        
+                        $tabTxtToCompare = [$texte_rand1->getId(), $texte_rand2->getId()];
 
-                        $exist_repere = $em->getRepository(Repere::class)->getByTexteImage($carteId, $image->getId(), $texte_rand1->getId(), $texte_rand2->getId());
-                    } while (!empty($exist_repere));                                       
+//                        $exist_repere = $em->getRepository(Repere::class)->getByTexteImage($carteId, $image->getId(), $texte_rand1->getId(), $texte_rand2->getId());
+                        $exist = false;
+                        
+                        foreach ($reperes as $repereTab) {                        
+                            if(!$exist) {
+                                foreach ($repereTab as $imageId => $tabTexte) {
+                                    if($imageId == $image->getId()) {
+                                        $intersect = array_intersect($tabTexte, $tabTxtToCompare);
+
+                                        if(count($intersect) == 2) {
+                                            $exist = true;
+                                            continue;
+                                        }
+                                    }
+
+                                }    
+                            } else {
+                                continue;
+                            }
+                           
+                        }
+                    } while ($exist); 
+//                    } while (!empty($exist_repere));                                       
                     
                     $repere->setImage($image)->addTexte($texte_rand1)->addTexte($texte_rand2);                    
                 }
                 
+                dump("repere choisi");
+                $logger->info("caculateRepereAction : repere choisi");
                 dump($couleur);
                 if(!$couleur){
                     $couleur = $em->getRepository(Couleur::class)->getRandomEntity();                
                 }
                 
                 $repere->setCouleur($couleur);
-                dump($repere);
                 
                 $em->persist($repere);
 
@@ -215,8 +269,27 @@ class DefaultController extends Controller
 //            dump($result);
 //        }
         dump($repere);
+        $logger->info("caculateRepereAction : before serialize");
         $result = $serializer->serialize($repere, 'json');
+        $logger->info("caculateRepereAction : after serialize");
         
         return new JsonResponse(['result'=>$result]);
+    }
+    
+    /**
+     * @Route("/new/carte", name="new_carte")
+     */
+    public function newCarteAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+        
+        $carte = new Carte();
+        $carte->setUser($user);
+
+        $em->persist($carte);
+        $em->flush();
+        
+        return $this->redirectToRoute('project');
     }
 }
