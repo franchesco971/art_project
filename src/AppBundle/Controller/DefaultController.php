@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,6 +14,8 @@ use AppBundle\Entity\Texte;
 use AppBundle\Entity\Couleur;
 use JMS\Serializer\SerializerBuilder;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Core\User\User as CoreUser;
 
 class DefaultController extends Controller
 {
@@ -39,18 +42,32 @@ class DefaultController extends Controller
         $carte = $em->getRepository(Carte::class)->findOneBy(['user'=>$user],['createdAt'=>'DESC']);
         
         if(!$carte) {
-            $carte = new Carte();
-            $carte->setUser($user);
+            
+            if($user instanceof CoreUser){              
+                
+                $carte = $em->getRepository(Carte::class)->findOneBy(['user'=>null],['createdAt'=>'DESC']);
+                if(!$carte) {
+                    $carte = new Carte();
+                    $em->persist($carte);
+                    $em->flush();
+                }
+                
+            } else {
+                $carte = new Carte();
+                
+                $carte->setUser($user);
+                $em->persist($carte);
+                $em->flush();
+            }            
 
-            $em->persist($carte);
-            $em->flush();
+            
         } else {
             $reperes = $em->getRepository(Repere::class)->findBy(['carte'=>$carte]);
             foreach ($reperes as $repere) {
                 $couleur = $repere->getCouleur();
                 $tabReperes[$repere->getAbcisse()][$repere->getOrdonnee()] = ($repere->getMajor())?$couleur->getMajor():$couleur->getProxy();
             }
-            dump($tabReperes);
+//            dump($tabReperes);
         }       
                                                               
         return $this->render('default/project.html.twig', [
@@ -70,7 +87,7 @@ class DefaultController extends Controller
         $abcissse = (int)$data['abcisse'];
         $ordonnee = (int)$data['ordonnee'];
         $carte = $em->getRepository(Carte::class)->find($carteId);
-        dump($carte);
+//        dump($carte);
         
 //        $encoder = [new JsonEncoder()];
 //        $normalizers = [new ObjectNormalizer()];
@@ -80,10 +97,10 @@ class DefaultController extends Controller
         
         
         if(!$repere) {
-            dump("le repere n'existe pas");
+//            dump("le repere n'existe pas");
             $logger->info("caculateRepereAction : le repere n'existe pas");
-    //       A metre dans l'entité carte
-            $maxItemCarte = 100;
+    //       A metre dans l'entité carte largeur/20
+            $maxItemCarte = 150;
             $rayon = 2;
 
             $abcissseMin = $abcissse-$rayon;
@@ -130,14 +147,16 @@ class DefaultController extends Controller
                     }
                 }
             }
-
-            if(count($reperes)>0)// il y dejà des points
+            
+            $nbReperes = count($reperes);
+            if($nbReperes > 0)// il y dejà des points
             {
-                dump("il y dejà des points");
+//                dump("il y dejà des points");
                 $logger->info("caculateRepereAction : il y dejà des points");
                 $resultat = array_rand(['texte','image']);
                 $exist_repere = null;
                 $repere = new Repere();
+                $tour = 0;
                 
                 $repere->setAbcisse($abcissse)
                         ->setOrdonnee($ordonnee)
@@ -168,6 +187,7 @@ class DefaultController extends Controller
                                         $intersect = array_intersect($tabTexte, $tabTxtToCompare);
 
                                         if(count($intersect) == 2) {
+//                                            $logger->info("caculateRepereAction : exist ".$imageId."-".$texte->getId()."-".$texte_rand->getId());
                                             $exist = true;
                                             continue;
                                         }
@@ -178,6 +198,11 @@ class DefaultController extends Controller
                                 continue;
                             }
                         }
+                        
+                        if($tour > $nbReperes) {
+                            throw new \Exception();
+                        }
+                        $tour++;
                     } while ($exist);
                     
                     $repere->setImage($image_rand)->addTexte($texte)->addTexte($texte_rand);
@@ -205,6 +230,7 @@ class DefaultController extends Controller
                                         $intersect = array_intersect($tabTexte, $tabTxtToCompare);
 
                                         if(count($intersect) == 2) {
+//                                            $logger->info("caculateRepereAction : exist ".$imageId."-".$texte_rand1->getId()."-".$texte_rand2->getId());
                                             $exist = true;
                                             continue;
                                         }
@@ -213,18 +239,23 @@ class DefaultController extends Controller
                                 }    
                             } else {
                                 continue;
-                            }
-                           
+                            }                           
                         }
+                        
+                        if($tour > $nbReperes) {
+                            throw new \Exception();
+                        }
+                        $tour++;
+                        
                     } while ($exist); 
 //                    } while (!empty($exist_repere));                                       
                     
                     $repere->setImage($image)->addTexte($texte_rand1)->addTexte($texte_rand2);                    
                 }
                 
-                dump("repere choisi");
+//                dump("repere choisi");
                 $logger->info("caculateRepereAction : repere choisi");
-                dump($couleur);
+//                dump($couleur);
                 if(!$couleur){
                     $couleur = $em->getRepository(Couleur::class)->getRandomEntity();                
                 }
@@ -236,7 +267,7 @@ class DefaultController extends Controller
 
 
             } else {
-                dump("pas de points");
+//                dump("pas de points");
                 $repere = new Repere();
                 $repere->setAbcisse($abcissse)
                         ->setOrdonnee($ordonnee)
@@ -268,7 +299,7 @@ class DefaultController extends Controller
 //            $result = json_encode($exist_repere);
 //            dump($result);
 //        }
-        dump($repere);
+//        dump($repere);
         $logger->info("caculateRepereAction : before serialize");
         $result = $serializer->serialize($repere, 'json');
         $logger->info("caculateRepereAction : after serialize");
@@ -277,7 +308,7 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/new/carte", name="new_carte")
+     * @Route("/carte/new", name="new_carte")
      */
     public function newCarteAction(Request $request)
     {
@@ -291,5 +322,45 @@ class DefaultController extends Controller
         $em->flush();
         
         return $this->redirectToRoute('project');
+    }
+    
+    /**
+     * @Route("/first_login", name="first_login")
+     * @Method({"GET", "POST"})
+     */
+    public function firstLoginAction(Request $request, AuthenticationUtils $authenticationUtils)
+    {
+        $user = $this->getUser();
+        if ($user instanceof UserInterface) {
+          return $this->redirectToRoute('project');
+        }
+
+        /** @var AuthenticationException $exception */
+        $exception = $this->get('security.authentication_utils')
+          ->getLastAuthenticationError();
+
+        return $this->render('admin/firstLogin.html.twig', [
+          'error' => $exception ? $exception->getMessage() : NULL,
+        ]);
+    }
+    
+    /**
+     * @Route("/first_logout", name="first_logout")
+     * @Method({"GET", "POST"})
+     */
+    public function firstLogoutAction(Request $request)
+    {        
+        return $this->redirectToRoute('first_login');
+    }
+    
+    /**
+     * @Route("/infos", name="infos")
+     */
+    public function infosAction(Request $request)
+    {
+        // replace this example code with whatever you need
+        return $this->render('default/infos.html.twig', [
+            'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
+        ]);
     }
 }

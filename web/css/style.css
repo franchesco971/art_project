@@ -1,3 +1,32 @@
 .hide{
     display: none;
 }
+.content{
+    margin-top: 85px;
+}
+div .modal-dialog-centered{
+    max-width: 1600px;
+}
+#exampleModalCenter .modal-body{
+    overflow: auto;
+    max-height: 500px;
+}
+.modal-block{
+    min-height:500px;
+    position: relative;
+    width:100%;
+}
+.modal .modal-text{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    width:500px;
+    min-height:500px;
+    float: left;
+}
+
+#img_modal{
+    width: 500px;
+    min-height: 500px;
+    float: left;
+}

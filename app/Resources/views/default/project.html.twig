@@ -1,5 +1,5 @@
-{% extends 'base.html.twig' %}
-
+{#{% extends 'base.html.twig' %}#}
+{% extends "default/layout.html.twig" %}
         
     {% block stylesheets %}
             {{ parent() }}
@@ -16,40 +16,17 @@
     {% endblock %}
     
     {% block body %}
+        {{ parent() }}
         
-        {#<nav class="navbar navbar-light bg-light">
-            <a class="navbar-brand" href="/"><h1>Art project</h1></a>
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav">
-                  <li class="nav-item active">
-                    <a class="nav-link" href="#"><h2>Carte n°{{carte.id}}</h2><span class="sr-only">(current)</span></a>
-                  </li>
-                </ul>
-            </div>
-        </nav>#}
-        
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="/"><h1>Art project</h1></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                  <a class="nav-link" href="#">Carte n°{{carte.id}} <span class="sr-only">(current)</span></a>
-                </li>
-              </ul>
-                <a class="btn btn-primary" href="{{ path('new_carte')}}" role="button">Nouvelle carte</a>
-            </div>
-        </nav>
-         
-        {% set largeur_total = 2000 %}
+
+        {% set largeur_total = 3000 %}
         {% set dim_carree = 20 %}
         {% set nb_carree = (largeur_total/dim_carree)-1 %}
         
-        <div style="width:2000px;min-height: 500px">
+{#        <div style="{{ "width:"~ largeur_total ~"px;min-height: 500px"}}">#}
+{#<div class="row">#}
 {#        <?php #}
-        <div style="{{ "width:"~ largeur_total ~" px;min-height: 500px"}}">
+        <div class="content" style="{{ "width:"~ largeur_total ~"px;min-height: 500px"}}">
         {% for i in 0..nb_carree %}
 {#        for ($i = 1; $i <= $nb_carree; $i++) {#}
             {% for j in 0..nb_carree %}
@@ -58,9 +35,9 @@
                 {% if reperes[i][j] is defined %}
                     {% set color = "background-color :"~reperes[i][j] %}
                 {% endif %}
-                {% set largeur_total = 2000 %}
+{#                {% set largeur_total = 2000 %}#}
                 <div class="plus_case class{{i~'-'~j}}" style="width: 20px;height: 20px;text-align: center;vertical-align: middle;float: left;{{color}}" 
-                     data-abcisse="{{i}}" data-ordonnee="{{j}}" data-carte-id="{{carte.id}}" title="{{ i~','~j }}" >
+                     data-abcisse="{{i}}" data-ordonnee="{{j}}" data-carte-id="{{carte.id}}" >
                     <div style="line-height:1em">+</div>
                         
                 </div>
@@ -69,6 +46,7 @@
 {#        }?>#}
         {% endfor %}
         </div>
+{#        </div>#}
         
         <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -80,14 +58,20 @@
                   </button>
                 </div>
                 <div class="modal-body">
-                    <div id="texte1" style="width: 250px;min-height: 200px; float: left;">
-                        Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un peintre anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
-                    </div>
-                    <div id="img_modal" style="width: 450px;min-height: 200px; float: left;">
-                        <img src="https://www.jqueryscript.net/images/Simplest-Responsive-jQuery-Image-Lightbox-Plugin-simple-lightbox.jpg" width="450" />
-                    </div>z
-                    <div id="texte2" style="width: 250px;min-height: 200px; float: left;">
-                        Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un peintre anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
+                    <div class="modal-block">
+                        <div id="texte1" class="modal-text" style="">
+                            <div style="margin-left:auto;margin-right:auto;width:100%;">
+                            Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un peintre anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
+                            </div>
+                        </div>
+                        <div id="img_modal" style="width: 500px;min-height: 500px;float: left;">
+                            <img src="https://www.staticwhich.co.uk/static/images/products/no-image/no-image-available.png" width="450" />
+                        </div>
+                        <div id="texte2" class="modal-text" style="">
+                            <div style="margin-left:auto;margin-right:auto;width:100%;">
+                            Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un peintre anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -97,49 +81,22 @@
               </div>
             </div>
           </div>
-        
-<!--        <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div style="width: 200px;height: 200px; float: left;">
-              Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un peintre anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
-          </div>
-          <div style="width: 200px;height: 200px; float: left;">
-              <img src="https://www.jqueryscript.net/images/Simplest-Responsive-jQuery-Image-Lightbox-Plugin-simple-lightbox.jpg" width="200" />
-          </div>
-          <div style="width: 200px;height: 200px; float: left;">
-              Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un peintre anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
-          </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>-->
-<div class="spiners hide">
-        <div class="spin1"></div>
-        <div class="spin2"></div>
-        <div class="spin3"></div>
-</div>
+
 
 
         
     {% endblock %}
     {% block javascripts %}
         <script src="http://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+        {{parent()}}
+        
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
     <script type="text/javascript">
             $(document).ready(function(){
+                
+                window.scrollBy(500, 1000);
+                
                  $(".plus_case").hover(function(){
                         $(this).find('div').css({
                             "transform": "rotate(30deg)",
@@ -172,15 +129,15 @@
                         var ordonnee = repere.ordonnee;
                         var classe = ".class"+abcisse+"-"+ordonnee;
                         
-                        console.log(repere);
-                        
-                        $('.modal-body #texte1').html(repere.textes[0].content);
+{#                        console.log(repere);#}
+                        $('.modal-header h5').html(repere.textes[0].livre+" de  "+repere.textes[0].auteur+" & "+repere.textes[1].livre+" de "+repere.textes[1].auteur);
+                        $('.modal-body #texte1 div').html(repere.textes[0].content);
                         $('.modal-body #img_modal img').attr("src","/web/images/upload/"+repere.image.image_name);
-                        $('.modal-body #texte2').html(repere.textes[1].content);
+                        $('.modal-body #texte2 div').html(repere.textes[1].content);
                         
-                        console.log(repere.major);
+                        {#console.log(repere.major);
                         console.log(classe);
-                        console.log($(classe));
+                        console.log($(classe));#}
                         if(repere.major == true) {
                             $(classe).css("background-color",repere.couleur.major);
                         } else {
@@ -189,8 +146,11 @@
                         
                         $('.modal').modal('toggle');    
                     })
+                    .fail(function() {
+                        toastr.warning('Plus de combinaisons possible');
+                    })
                     .always(function() {
-                        $('.spiners').hide();
+                        $('.spiners').hide();                
                     });
                     
                 };

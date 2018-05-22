@@ -33,3 +33,6 @@ services:
     # AppBundle\Service\ExampleService:
     #     arguments:
     #         $someArgument: 'some_value'
+    form_authenticator:
+          class: AppBundle\Security\FormAuthenticator
+          arguments: ["@router"]

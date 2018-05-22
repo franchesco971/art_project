@@ -1,0 +1,115 @@
+{% extends "default/layout.html.twig" %}
+        
+    {% block stylesheets %}
+            {{ parent() }}
+        <style>
+            body .modal-dialog { /* Width */
+                max-width: 1000px;
+                width: auto !important;
+            }
+            .plus_case{
+                cursor: pointer;
+            }
+        </style>
+        <link rel="stylesheet" href="{{ asset('css/loader.css') }}" >
+    {% endblock %}
+    
+    {% block body %}
+        {{ parent() }}
+
+        <div class="container content">
+            <div class="row">
+              <div class="card text-center w-100">
+                <div class="card-header">
+                  Featured
+                </div>
+                <div class="card-body">
+                  <h5 class="card-title">Special title treatment</h5>
+                  <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                  <a href="#" class="btn btn-primary">Lien notice</a>
+                </div>
+                <div class="card-footer text-muted">
+                  Carrié Valentin, ECAL, Master Arts Visuels,2018.
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+        
+    {% endblock %}
+    {% block javascripts %}
+        <script src="http://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+        {{parent()}}
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+            $(document).ready(function(){
+                
+                {#window.scrollBy(1000, 2500);
+                
+                 $(".plus_case").hover(function(){
+                        $(this).find('div').css({
+                            "transform": "rotate(30deg)",
+                            "-moz-transform": 'rotate(30deg)',
+                            "-webkit-transform": "rotate(30deg)"
+                        }, "slow");
+                    }
+                 ,function(){
+                    $(this).find('div').css({
+                        "transform": "rotate(0deg)",
+                        "-moz-transform": 'rotate(0deg)',
+                        "-webkit-transform": "rotate(0deg)"
+                    });
+                 }
+                 
+                );
+                
+                var calculateRepere = function(element) {
+                    datas = element.data();
+                    $('.spiners').show();
+                    $.ajax({
+                        url:"{{ path('caculateRepere')}}",
+                        method:"POST",
+                        data: datas
+                    })
+                    .done(function(data){
+                        //html
+                        var repere = JSON.parse(data.result);
+                        var abcisse = repere.abcisse;
+                        var ordonnee = repere.ordonnee;
+                        var classe = ".class"+abcisse+"-"+ordonnee;
+                        
+                        $('.modal-body #texte1').html(repere.textes[0].content);
+                        $('.modal-body #img_modal img').attr("src","/web/images/upload/"+repere.image.image_name);
+                        $('.modal-body #texte2').html(repere.textes[1].content);
+                        
+
+                        if(repere.major == true) {
+                            $(classe).css("background-color",repere.couleur.major);
+                        } else {
+                            $(classe).css("background-color",repere.couleur.proxy);
+                        }
+                        
+                        $('.modal').modal('toggle');    
+                    })
+                    .fail(function() {
+                        toastr.warning('Plus de combinaisons possible');
+                    })
+                    .always(function() {
+                        $('.spiners').hide();                
+                    });
+                    
+                };
+                
+                $('.plus_case').click(function(){
+                    var element=$(this);
+                    calculateRepere(element);
+                });#}
+                
+           });
+        </script>
+    {% endblock %}
+

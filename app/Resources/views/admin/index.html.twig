@@ -1,10 +1,17 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/layout.html.twig' %}
 
-{% block title %}Index admin{% endblock %}
+{% block content %}
+    
+    <div class="jumbotron">
+        <div class="container">
+            <h1 class="display-4">Admin</h1>
+            <div class="row">
+                <ul>
+                    <li><a href="{{ path('admin_image_index')}}" >Admin Images</a></li>
+                    <li><a href="{{ path('admin_texte_index')}}" >Admin Textes</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
         
-{% block stylesheets %}{% endblock %}
-
-{% block body %}
-Cool
 {% endblock %}
-{% block javascripts %}{% endblock %}
