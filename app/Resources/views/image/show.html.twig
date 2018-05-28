@@ -33,10 +33,10 @@
         <li>
             <a href="{{ path('admin_image_edit', { 'id': image.id }) }}">Edit</a>
         </li>
-        <li>
+        {#<li>
             {{ form_start(delete_form) }}
                 <input type="submit" value="Delete">
             {{ form_end(delete_form) }}
-        </li>
+        </li>#}
     </ul>
 {% endblock %}

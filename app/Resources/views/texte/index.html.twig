@@ -3,8 +3,14 @@
 {% block body %}
     {{ parent() }}
     <h1>Textes list</h1>
+    
+    <ul>
+        <li>
+            <a href="{{ path('admin_texte_new') }}">Crée un nouveau texte</a>
+        </li>
+    </ul>
 
-    <table>
+    <table class="table table-hover">
         <thead>
             <tr>
                 <th>Id</th>
@@ -40,9 +46,5 @@
         </tbody>
     </table>
 
-    <ul>
-        <li>
-            <a href="{{ path('admin_texte_new') }}">Create a new texte</a>
-        </li>
-    </ul>
+    
 {% endblock %}

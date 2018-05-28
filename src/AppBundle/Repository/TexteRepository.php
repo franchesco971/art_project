@@ -10,12 +10,18 @@ namespace AppBundle\Repository;
  */
 class TexteRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function getRandomEntity()
+    public function getRandomEntity($exclude_id = null)
     {
-        return  $this->createQueryBuilder('t')
+        $qb = $this->createQueryBuilder('t')
             ->addSelect('RAND() as HIDDEN rand')
-            ->addOrderBy('rand')
-            ->getQuery()
+            ->addOrderBy('rand');
+            
+        if($exclude_id) {
+            $qb->andWhere('t.id <> :id')
+                ->setParameter('id', $exclude_id);
+        }            
+         
+        return $qb->getQuery()
             ->setMaxResults(1)
             ->getOneOrNullResult();
     }

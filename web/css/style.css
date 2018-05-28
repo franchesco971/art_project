@@ -8,8 +8,8 @@ div .modal-dialog-centered{
     max-width: 1600px;
 }
 #exampleModalCenter .modal-body{
-    overflow: auto;
-    max-height: 500px;
+    /*overflow: auto;*/
+    max-height: 650px;
 }
 .modal-block{
     min-height:500px;
@@ -17,16 +17,30 @@ div .modal-dialog-centered{
     width:100%;
 }
 .modal .modal-text{
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    display:table-cell;
+    /*display:flex;*/
+    /*justify-content:center;*/
+    /*align-items:center;*/
     width:500px;
-    min-height:500px;
+    /*max-height:600px;*/
+    height:600px;
     float: left;
+    overflow: auto;
+    vertical-align: middle;
 }
 
 #img_modal{
     width: 500px;
-    min-height: 500px;
+    max-height: 600px;
     float: left;
+    overflow: auto;
+}
+a.btn:hover{
+    text-decoration: underline;
+}
+#la_carte{
+    overflow: hidden;
+}
+#titre {
+    margin-right: 50%;
 }

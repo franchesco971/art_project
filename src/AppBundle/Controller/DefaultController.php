@@ -86,6 +86,11 @@ class DefaultController extends Controller
         $carteId = (int)$data['carteId'];
         $abcissse = (int)$data['abcisse'];
         $ordonnee = (int)$data['ordonnee'];
+        
+        $previmage = (int)$data['previmage'];
+        $prevtexte1 = (int)$data['prevtexte1'];
+        $prevtexte2 = (int)$data['prevtexte2'];
+        
         $carte = $em->getRepository(Carte::class)->find($carteId);
 //        dump($carte);
         
@@ -94,9 +99,9 @@ class DefaultController extends Controller
         $serializer = SerializerBuilder::create()->build();
         
         $repere = $em->getRepository(Repere::class)->findOneBy(['carte'=>$carteId, 'abcisse'=>$abcissse, 'ordonnee'=>$ordonnee]);
+        $type = "old";
         
-        
-        if(!$repere) {
+        if(!$repere) {            
 //            dump("le repere n'existe pas");
             $logger->info("caculateRepereAction : le repere n'existe pas");
     //       A metre dans l'entité carte largeur/20
@@ -185,9 +190,10 @@ class DefaultController extends Controller
                                 foreach ($repereTab as $imageId => $tabTexte) {
                                     if($imageId == $image_rand->getId()) {
                                         $intersect = array_intersect($tabTexte, $tabTxtToCompare);
+//                                        dump($tabTexte);dump($tabTxtToCompare);
 
                                         if(count($intersect) == 2) {
-//                                            $logger->info("caculateRepereAction : exist ".$imageId."-".$texte->getId()."-".$texte_rand->getId());
+                                            $logger->info("caculateRepereAction : exist ".$imageId."-".$texte->getId()."-".$texte_rand->getId());
                                             $exist = true;
                                             continue;
                                         }
@@ -228,9 +234,10 @@ class DefaultController extends Controller
                                 foreach ($repereTab as $imageId => $tabTexte) {
                                     if($imageId == $image->getId()) {
                                         $intersect = array_intersect($tabTexte, $tabTxtToCompare);
+                                        dump($tabTexte);dump($tabTxtToCompare);
 
                                         if(count($intersect) == 2) {
-//                                            $logger->info("caculateRepereAction : exist ".$imageId."-".$texte_rand1->getId()."-".$texte_rand2->getId());
+                                            $logger->info("caculateRepereAction : exist ".$imageId."-".$texte_rand1->getId()."-".$texte_rand2->getId());
                                             $exist = true;
                                             continue;
                                         }
@@ -267,6 +274,7 @@ class DefaultController extends Controller
 
 
             } else {
+                $type = "new";
 //                dump("pas de points");
                 $repere = new Repere();
                 $repere->setAbcisse($abcissse)
@@ -280,11 +288,13 @@ class DefaultController extends Controller
                 $image = $em->getRepository(Image::class)->getRandomEntity();
                 $repere->setImage($image);
 
-                $text1 = $em->getRepository(Texte::class)->getRandomEntity();
+                $text1 = $em->getRepository(Texte::class)->getRandomEntity($prevtexte1);
                 $text2 = $em->getRepository(Texte::class)->getSecondRandomEntity($text1->getAuteur(),$text1->getId());
                 $repere->addTexte($text1);
                 $repere->addTexte($text2);
-
+                
+                
+                //TODO vérifier existatnce avant persist
                 $em->persist($repere);
             }
             
@@ -304,7 +314,7 @@ class DefaultController extends Controller
         $result = $serializer->serialize($repere, 'json');
         $logger->info("caculateRepereAction : after serialize");
         
-        return new JsonResponse(['result'=>$result]);
+        return new JsonResponse(['result'=>$result,'type'=>$type]);
     }
     
     /**
@@ -362,5 +372,75 @@ class DefaultController extends Controller
         return $this->render('default/infos.html.twig', [
             'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
         ]);
+    }
+    
+    /**
+     * @Route("/outils", name="outils")
+     */
+    public function outilsAction(Request $request)
+    {
+        // replace this example code with whatever you need
+        return $this->render('default/outils.html.twig', [
+            'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
+        ]);
+    }
+    
+    /**
+     * @Route("/carte/liste", name="carte_liste")
+     */
+    public function carteListeAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+        $cartes = $em->getRepository(Carte::class)->findBy(['user'=>$user]);
+        
+
+        // replace this example code with whatever you need
+        return $this->render('carte/index.html.twig', [
+            'cartes' => $cartes,
+        ]);
+    }
+    
+    /**
+     * @Route("/carte/{id}", name="carte_show", requirements={"id" = "\d+"})
+     */
+    public function carteShowAction(Request $request, Carte $carte)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $tabReperes = [];
+        
+        $reperes = $em->getRepository(Repere::class)->findBy(['carte'=>$carte]);
+        foreach ($reperes as $repere) {
+            $couleur = $repere->getCouleur();
+            $tabReperes[$repere->getAbcisse()][$repere->getOrdonnee()] = ($repere->getMajor())?$couleur->getMajor():$couleur->getProxy();
+        }
+        
+
+        // replace this example code with whatever you need
+        return $this->render('default/project.html.twig', [
+            'carte' => $carte,
+            'reperes' => $tabReperes
+        ]);
+    }
+    
+    /**
+     * @Route("/carte_edit/{id}", name="carte_edit", requirements={"id" = "\d+"})
+     * @Method({"POST"})
+     */
+    public function carteEditAction(Request $request, Carte $carte)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $label = $request->request->get('label');
+        
+        if($label)
+        {
+            $carte->setCarteLabel($label);
+            $em->flush();
+        } else {
+            throw new Exception();
+        }
+        
+        
+        return $this->redirectToRoute('carte_liste');
     }
 }

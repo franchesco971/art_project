@@ -1,10 +1,9 @@
 {% extends 'admin/layout.html.twig' %}
 
-{% block body %}
-    {{ parent() }}
+{% block content %}
     <h1>Texte</h1>
 
-    <table>
+    <table class="table">
         <tbody>
             <tr>
                 <th>Id</th>
@@ -26,10 +25,10 @@
                 <th>Livre</th>
                 <td>{{ texte.livre }}</td>
             </tr>
-            <tr>
+            {#<tr>
                 <th>Createdat</th>
                 <td>{% if texte.createdAt %}{{ texte.createdAt|date('Y-m-d H:i:s') }}{% endif %}</td>
-            </tr>
+            </tr>#}
         </tbody>
     </table>
 
@@ -40,10 +39,10 @@
         <li>
             <a href="{{ path('admin_texte_edit', { 'id': texte.id }) }}">Edit</a>
         </li>
-        <li>
+        {#<li>
             {{ form_start(delete_form) }}
                 <input type="submit" value="Delete">
             {{ form_end(delete_form) }}
-        </li>
+        </li>#}
     </ul>
 {% endblock %}

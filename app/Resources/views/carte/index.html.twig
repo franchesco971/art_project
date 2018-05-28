@@ -1,0 +1,41 @@
+{% extends "default/layout.html.twig" %}
+
+    {% block title %}Liste de cartes{% endblock %}
+        
+    {% block stylesheets %}
+            {{ parent() }}
+        <style>
+            body .modal-dialog { /* Width */
+                max-width: 1000px;
+                width: auto !important;
+            }
+            .plus_case{
+                cursor: pointer;
+            }
+        </style>
+        <link rel="stylesheet" href="{{ asset('css/loader.css') }}" >
+    {% endblock %}
+    
+    {% block body %}
+        {{parent()}}
+        <div class="container content">
+            <h1>Liste des cartes</h1>
+            <div class="row">
+                <ul class="list-group">
+                    {% for carte in cartes %}
+                        <li class="list-group-item">
+{#                            <span class="pr-5">{{carte.id}} - {{carte.carte_label|default('pas de nom')}}</span><a class="btn btn-primary" href="{{ path('carte_show',{'id':carte.id})}}">Voir</a>#}
+                            <form class="form-inline" action="{{ path('carte_edit',{'id':carte.id})}}" method="POST">
+                                <span class="pr-5">{{carte.id}}</span>
+                                <input class="form-control mr-5" type="text" placeholder="{{carte.carte_label|default('Pas de nom')}}" value="{{carte.carteLabel}}" name="label">
+                                <button type="submit" class="btn btn-primary mr-5">Changer de nom</button>
+                                <a class="btn btn-primary" href="{{ path('carte_show',{'id':carte.id})}}">Voir</a>
+                            </form>
+                            
+                        </li>
+                    {% endfor %}
+                  </ul>
+            </div>
+        </div>
+        
+    {% endblock %}
