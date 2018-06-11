@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * Couleur
@@ -18,6 +19,7 @@ class Couleur
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Groups({"ajax"})
      */
     private $id;
 
@@ -25,6 +27,7 @@ class Couleur
      * @var string
      *
      * @ORM\Column(name="major", type="string", length=255, nullable=true)
+     * @JMS\Groups({"ajax"})
      */
     private $major;
 
@@ -32,11 +35,13 @@ class Couleur
      * @var string
      *
      * @ORM\Column(name="proxy", type="string", length=255, nullable=true)
+     * @JMS\Groups({"ajax"})
      */
     private $proxy;
     
     /**
      * @ORM\OneToMany(targetEntity="Repere", mappedBy="couleur")
+     * @JMS\Exclude()
      */
     private $reperes;
 

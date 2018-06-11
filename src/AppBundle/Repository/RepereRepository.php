@@ -2,6 +2,8 @@
 
 namespace AppBundle\Repository;
 
+use FOS\UserBundle\Model\User;
+
 /**
  * RepereRepository
  *
@@ -37,5 +39,16 @@ class RepereRepository extends \Doctrine\ORM\EntityRepository
                 ->andWhere('te.id = :texte2')->setParameter('texte2', $texte2);
                 
         return $q->getQuery()->getResult();        
+    }
+    
+    public function getSaved(User $user) {
+        $qb = $this->createQueryBuilder('r')
+                ->join('r.carte', 'c')
+                ->where('c.user = :user')
+                ->andWhere('r.isSaved = :isSaved')
+                ->setParameter('user', $user)
+                ->setParameter('isSaved', true);
+        
+        return $qb->getQuery()->getResult();
     }
 }

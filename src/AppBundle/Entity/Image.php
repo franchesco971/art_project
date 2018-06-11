@@ -23,6 +23,7 @@ class Image
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Groups({"ajax"})
      */
     private $id;
 
@@ -30,6 +31,7 @@ class Image
      * @var string
      *
      * @ORM\Column(name="image_label", type="string", length=255)
+     * @JMS\Groups({"ajax"})
      */
     private $imageLabel;
 
@@ -41,6 +43,7 @@ class Image
      *     maxSize="5M",
      *     mimeTypes={"image/png", "image/jpeg", "image/gif"}
      * )
+     * @JMS\Groups({"ajax"})
      */
     private $imageName;
 
@@ -56,7 +59,31 @@ class Image
      * @JMS\Exclude()
      */
     private $reperes;
-
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="isDisabled", type="boolean")
+     * @JMS\Groups({"ajax"})
+     */
+    private $isDisabled;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="size", type="string", length=255)
+     */
+    private $size;
+    
+    /**
+     * Constructor
+     */
+    public function __construct(){
+        $this->reperes = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->createdAt = new \DateTime('NOW');
+        $this->isDisabled = false;
+    }
+    
     /**
      * Get id
      *
@@ -113,15 +140,7 @@ class Image
     public function getCreatedAt()
     {
         return $this->createdAt;
-    }
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->reperes = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->createdAt = new \DateTime('NOW');
-    }
+    }    
 
     /**
      * Add repere
@@ -179,5 +198,53 @@ class Image
     public function getImageName()
     {
         return $this->imageName;
+    }
+
+    /**
+     * Set isDisabled
+     *
+     * @param boolean $isDisabled
+     *
+     * @return Image
+     */
+    public function setIsDisabled($isDisabled)
+    {
+        $this->isDisabled = $isDisabled;
+
+        return $this;
+    }
+
+    /**
+     * Get isDisabled
+     *
+     * @return boolean
+     */
+    public function getIsDisabled()
+    {
+        return $this->isDisabled;
+    }
+
+    /**
+     * Set size
+     *
+     * @param string $size
+     *
+     * @return Image
+     */
+    public function setSize($size)
+    {
+        $this->size = $size;
+
+        return $this;
+    }
+
+    /**
+     * Get size
+     *
+     * @return string
+     */
+    public function getSize()
+    {
+        return $this->size;
     }
 }

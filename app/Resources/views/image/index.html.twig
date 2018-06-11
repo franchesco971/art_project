@@ -14,9 +14,10 @@
         <thead>
             <tr>
                 <th>Id</th>
-{#                <th>Imagelabel</th>#}
+                <th>Libelle</th>
+                <th>Poids</th>
                 <th>Imagename</th>
-                <th>Createdat</th>
+                <th>Crée le</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -24,9 +25,9 @@
         {% for image in images %}
             <tr>
                 <td><a href="{{ path('admin_image_show', { 'id': image.id }) }}">{{ image.id }}</a></td>
-{#                <td>{{ image.imageLabel }}</td>#}
-{#                <td>{{ image.imageName }}</td>#}
-                <td><img src="{{ asset('images/upload/' ~ image.imageName) }}" width="20" /></td>
+                <td>{{ image.imageLabel }}</td>
+                <td>{{ tabImg[image.id]|default('Non disponible') }}</td>
+                <td><img src="{{ asset('web/images/upload/' ~ image.imageName) }}" width="40" /></td>
                 <td>{% if image.createdAt %}{{ image.createdAt|date('Y-m-d H:i:s') }}{% endif %}</td>
                 <td>
                     <ul>
@@ -35,6 +36,12 @@
                         </li>
                         <li>
                             <a href="{{ path('admin_image_edit', { 'id': image.id }) }}">edit</a>
+                        </li>
+                        <li>
+                            <form action="{{ path('admin_delete_image', { 'id': image.id }) }}" method="POST">
+                                <input type="hidden" name="_method" value="PUT">
+                                <input type="submit" value="Supprimer" />
+                            </form>
                         </li>
                     </ul>
                 </td>

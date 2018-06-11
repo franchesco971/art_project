@@ -5,7 +5,14 @@
     <h1>Texte edit</h1>
 
     {{ form_start(edit_form) }}
-        {{ form_widget(edit_form) }}
+        {{ form_label(edit_form.texteLabel , 'Titre') }}
+        {{ form_widget(edit_form.texteLabel) }}
+        {{ form_label(edit_form.content, 'Contenu') }}
+        {{ form_widget(edit_form.content) }}
+        {{ form_label(edit_form.auteur ) }}
+        {{ form_widget(edit_form.auteur) }}
+        {{ form_label(edit_form.livre) }}
+        {{ form_widget(edit_form.livre) }}
         <input type="submit" value="Edit" />
     {{ form_end(edit_form) }}
 

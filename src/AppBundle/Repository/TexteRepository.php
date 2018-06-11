@@ -14,7 +14,9 @@ class TexteRepository extends \Doctrine\ORM\EntityRepository
     {
         $qb = $this->createQueryBuilder('t')
             ->addSelect('RAND() as HIDDEN rand')
-            ->addOrderBy('rand');
+            ->addOrderBy('rand')
+            ->andWhere('t.isDisabled = :disabled')
+            ->setParameter('disabled', false);
             
         if($exclude_id) {
             $qb->andWhere('t.id <> :id')
@@ -26,17 +28,24 @@ class TexteRepository extends \Doctrine\ORM\EntityRepository
             ->getOneOrNullResult();
     }
     
-    public function getSecondRandomEntity($auteur, $texte_id)
+    public function getSecondRandomEntity($auteur, $texte_id, $exclude_id = null)
     {
-        return  $this->createQueryBuilder('t')
+        $qb = $this->createQueryBuilder('t')
             ->addSelect('RAND() as HIDDEN rand')
             ->addOrderBy('rand')
                 ->where('t.auteur <> :auteur')
             ->setParameter('auteur', $auteur)
                 ->andWhere('t.id <> :id')
                 ->setParameter('id', $texte_id)
-            ->setMaxResults(1)
-            ->getQuery()
+            ->andWhere('t.isDisabled = :disabled')
+            ->setParameter('disabled', false)
+            ->setMaxResults(1);
+                
+            if($exclude_id) {
+                $qb->andWhere('t.id <> :id_ex')
+                    ->setParameter('id_ex', $exclude_id);
+            }    
+        return $qb->getQuery()
             ->getOneOrNullResult();
     }
 }

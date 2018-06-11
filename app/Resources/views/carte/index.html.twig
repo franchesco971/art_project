@@ -30,6 +30,7 @@
                                 <input class="form-control mr-5" type="text" placeholder="{{carte.carte_label|default('Pas de nom')}}" value="{{carte.carteLabel}}" name="label">
                                 <button type="submit" class="btn btn-primary mr-5">Changer de nom</button>
                                 <a class="btn btn-primary" href="{{ path('carte_show',{'id':carte.id})}}">Voir</a>
+                                <a class="btn btn-primary ml-5" href="{{ path('carte_delete',{'id':carte.id})}}">Supprimer</a>
                             </form>
                             
                         </li>
@@ -38,4 +39,10 @@
             </div>
         </div>
         
+    {% endblock %}
+    
+    {% block javascripts %}
+        <script src="{{ asset('js/jquery3.3.1.min.js') }}" ></script>
+        {{parent()}}
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
     {% endblock %}

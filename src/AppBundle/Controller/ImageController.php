@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Doctrine\ORM\EntityManager;
 
 /**
  * Image controller.
@@ -25,10 +26,16 @@ class ImageController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $images = $em->getRepository('AppBundle:Image')->findAll();
+        $images = $em->getRepository('AppBundle:Image')->findBy(['isDisabled' => false]);
+        
+        $tabImg = [];
+        foreach ($images as $image) {
+            $tabImg[$image->getId()] = $this->GetSizeName($image->getSize());
+        }
 
         return $this->render('image/index.html.twig', array(
             'images' => $images,
+            'tabImg' => $tabImg,
         ));
     }
 
@@ -48,12 +55,14 @@ class ImageController extends Controller
             $em = $this->getDoctrine()->getManager();
             $file = $image->getImageName();
             $fileName = uniqid().'.'.$file->guessExtension();
+            $size = $file->getClientSize(); 
             
             $file->move(
                 $this->getParameter('images_directory'),
                 $fileName
             );
             
+            $image->setSize($size);
             $image->setImageName($fileName);
             
             $em->persist($image);
@@ -143,5 +152,54 @@ class ImageController extends Controller
             ->setMethod('DELETE')
             ->getForm()
         ;
+    }
+    
+    /**
+     * Finds and displays a image entity.
+     *
+     * @Route("/delete/image/{id}", name="admin_delete_image")
+     * @Method("PUT")
+     */
+    public function deleteImageAction(Image $image) {
+        $em = $this->getDoctrine()->getManager();
+        $image->setIsDisabled(true);
+        $em->flush();
+        
+        return $this->redirectToRoute('admin_image_index');
+    }
+    
+    function GetSizeName($octet)
+    {
+        // Array contenant les differents unités 
+        $unite = array('octet','ko','mo','go');
+        
+        if(!$octet)
+            return null;
+
+        if ($octet < pow(10,3)) // octet
+        {
+            return $octet.$unite[0];
+        }
+        else 
+        {
+            if ($octet < pow(10,6)) // ko
+            {
+                $ko = round($octet/1024,2);
+                return $ko.$unite[1];
+            }
+            else // Mo ou Go 
+            {
+                if ($octet < pow(10,9)) // Mo 
+                {
+                    $mo = round($octet/(1024*1024),2);
+                    return $mo.$unite[2];
+                }
+                elseif($octet < pow(10,12)) // Go 
+                {
+                    $go = round($octet/(1024*1024*1024),2);
+                    return $go.$unite[3];    
+                }   
+            }
+        }
     }
 }

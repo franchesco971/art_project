@@ -24,7 +24,7 @@ class TexteController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $textes = $em->getRepository('AppBundle:Texte')->findAll();
+        $textes = $em->getRepository('AppBundle:Texte')->findBy(['isDisabled' => false]);
 
         return $this->render('texte/index.html.twig', array(
             'textes' => $textes,
@@ -132,5 +132,19 @@ class TexteController extends Controller
             ->setMethod('DELETE')
             ->getForm()
         ;
+    }
+    
+    /**
+     * Finds and displays a image entity.
+     *
+     * @Route("/delete/texte/{id}", name="admin_delete_texte")
+     * @Method("PUT")
+     */
+    public function deleteTexteAction(Texte $texte) {
+        $em = $this->getDoctrine()->getManager();
+        $texte->setIsDisabled(true);
+        $em->flush();
+        
+        return $this->redirectToRoute('admin_texte_index');
     }
 }

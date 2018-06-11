@@ -10,13 +10,20 @@ namespace AppBundle\Repository;
  */
 class ImageRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function getRandomEntity()
+    public function getRandomEntity($exclude_id = null)
     {
-        return  $this->createQueryBuilder('q')
+        $qb = $this->createQueryBuilder('i')
             ->addSelect('RAND() as HIDDEN rand')
             ->addOrderBy('rand')
-            ->setMaxResults(1)    
-            ->getQuery()
+            ->andWhere('i.isDisabled = :disabled')
+            ->setParameter('disabled', false)
+            ->setMaxResults(1);  
+                
+        if($exclude_id) {
+            $qb->andWhere('i.id <> :id')
+                ->setParameter('id', $exclude_id);
+        }        
+        return $qb->getQuery()
             ->getOneOrNullResult();
         
     }    

@@ -1,0 +1,54 @@
+{% extends "default/layout.html.twig" %}
+
+    {% block title %}Liste de repères{% endblock %}
+        
+    {% block stylesheets %}
+        {{ parent() }}
+    {% endblock %}
+    
+    {% block body %}
+        {{parent()}}
+        <div class="container content">
+            <h1>Liste des repères</h1>
+            <div class="row" id="repere-list">
+                <ul class="list-group">
+                    {% for repere in reperes %}
+                        {% set carte = repere.carte %}
+                        <li class="list-group-item">
+{#                            <span class="pr-5">{{carte.id}} - {{carte.carte_label|default('pas de nom')}}</span><a class="btn btn-primary" href="{{ path('carte_show',{'id':carte.id})}}">Voir</a>#}
+                            {#<form class="form-inline" action="{{ path('carte_edit',{'id':carte.id})}}" method="POST">
+                                <span class="pr-5">{{carte.id}}</span>
+                                <input class="form-control mr-5" type="text" placeholder="{{carte.carte_label|default('Pas de nom')}}" value="{{carte.carteLabel}}" name="label">
+                                <button type="submit" class="btn btn-primary mr-5">Changer de nom</button>
+                                <a class="btn btn-primary" href="{{ path('carte_show',{'id':carte.id})}}">Voir</a>
+                            </form>#}
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <form class="form-inline" action="{{ path('save_repere',{'id':repere.id})}}" method="POST">
+                                        <div class="col-1">
+                                            <span>{{repere.abcisse}},{{repere.ordonnee}} -</span>
+                                        </div>
+                                        <div class="col-3">
+                                            <span>Carte n°{{carte.id}}  {{carte.carte_label|default('carte sans nom')}}</span>
+                                        </div>
+                                        <div class="col-3">
+    {#                                        <span>{{repere.libelle|default('Repère sans nom')}}</span>#}
+                                            <input id="repere-name" class="form-control mr-5" type="text" placeholder="Titre" value="{{repere.libelle|default('')}}" name="label">
+                                        </div>
+                                        <div>
+                                            <a class="btn ml-5" href="{{ path('repere_show',{'id':repere.id,'carte_id':carte.id})}}">Voir</a>
+
+                                            <button type="submit" class="btn mr-5">Nommer</button>
+                                            <a class="btn ml-5" href="{{ path('repere_delete',{'id':repere.id})}}">Supprimer</a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                        </li>
+                    {% endfor %}
+                  </ul>
+            </div>
+        </div>
+        
+    {% endblock %}

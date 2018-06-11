@@ -42,7 +42,7 @@ class Carte
     private $user;
     
     /**
-     * @ORM\OneToMany(targetEntity="Repere", mappedBy="carte")
+     * @ORM\OneToMany(targetEntity="Repere", mappedBy="carte" , cascade={"remove"})
      */
     private $reperes;
         

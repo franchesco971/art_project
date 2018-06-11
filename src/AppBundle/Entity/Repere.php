@@ -19,6 +19,7 @@ class Repere
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Groups({"ajax"})
      */
     private $id;
 
@@ -26,6 +27,7 @@ class Repere
      * @var int
      *
      * @ORM\Column(name="abcisse", type="integer")
+     * @JMS\Groups({"ajax"})
      */
     private $abcisse;
 
@@ -33,12 +35,14 @@ class Repere
      * @var int
      *
      * @ORM\Column(name="ordonnee", type="integer")
+     * @JMS\Groups({"ajax"})
      */
     private $ordonnee;
 
     /**
      * @ORM\ManyToOne(targetEntity="Couleur", inversedBy="reperes")
      * @ORM\JoinColumn(name="couleur_id", referencedColumnName="id")
+     * @JMS\Groups({"ajax"})
      */
     private $couleur;
 
@@ -46,6 +50,7 @@ class Repere
      * @var string
      *
      * @ORM\Column(name="major", type="boolean")
+     * @JMS\Groups({"ajax"})
      */
     private $major;
 
@@ -66,13 +71,30 @@ class Repere
     /**
      * @ORM\ManyToOne(targetEntity="Image", inversedBy="reperes")
      * @ORM\JoinColumn(name="images_id", referencedColumnName="id")
+     * @JMS\Groups({"ajax"})
      */
     private $image;
     
     /**
    * @ORM\ManyToMany(targetEntity="Texte", cascade={"persist"})
+     * @JMS\Groups({"ajax"})
    */
     private $textes;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="isSaved", type="boolean")
+     * @JMS\Groups({"ajax"})
+     */
+    private $isSaved;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="libelle", type="string", length=255, nullable=true)
+     */
+    private $libelle;
 
     /**
      * Get id
@@ -163,6 +185,7 @@ class Repere
     {
         $this->textes = new \Doctrine\Common\Collections\ArrayCollection();
         $this->major = false;
+        $this->isSaved = false;
         $this->createdAt = new \DateTime('NOW');
     }
 
@@ -294,5 +317,53 @@ class Repere
     public function getCouleur()
     {
         return $this->couleur;
+    }
+
+    /**
+     * Set isSaved
+     *
+     * @param boolean $isSaved
+     *
+     * @return Repere
+     */
+    public function setIsSaved($isSaved)
+    {
+        $this->isSaved = $isSaved;
+
+        return $this;
+    }
+
+    /**
+     * Get isSaved
+     *
+     * @return boolean
+     */
+    public function getIsSaved()
+    {
+        return $this->isSaved;
+    }
+
+    /**
+     * Set libelle
+     *
+     * @param string $libelle
+     *
+     * @return Repere
+     */
+    public function setLibelle($libelle)
+    {
+        $this->libelle = $libelle;
+
+        return $this;
+    }
+
+    /**
+     * Get libelle
+     *
+     * @return string
+     */
+    public function getLibelle()
+    {
+        return $this->libelle;
     }
 }

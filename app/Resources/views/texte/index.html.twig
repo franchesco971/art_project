@@ -39,6 +39,12 @@
                         <li>
                             <a href="{{ path('admin_texte_edit', { 'id': texte.id }) }}">edit</a>
                         </li>
+                        <li>
+                            <form action="{{ path('admin_delete_texte', { 'id': texte.id }) }}" method="POST">
+                                <input type="hidden" name="_method" value="PUT">
+                                <input type="submit" value="Supprimer" />
+                            </form>
+                        </li>
                     </ul>
                 </td>
             </tr>

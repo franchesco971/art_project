@@ -8,17 +8,14 @@
                 max-width: 1000px;
                 width: auto !important;
             }
-            .plus_case{
-                cursor: pointer;
-            }
         </style>
         <link rel="stylesheet" href="{{ asset('css/loader.css') }}" >
-        <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
     {% endblock %}
     
     {% block body %}
         {{ parent() }}
-        <div class="hide" id="saveData" data-previmage="0" data-prevtexte1="0" data-prevtexte2="0"></div>
+        <div class="hide" id="saveData" data-previmage="0" data-prevtexte1="0" data-prevtexte2="0" data-carte-id="{{carte.id}}"></div>
+        <div class="hide" id="currentData" data-repereid="0" data-abcisse="0" data-ordonne="0"></div>
 
         {% set largeur_total = 3000 %}
         {% set dim_carree = 20 %}
@@ -28,24 +25,31 @@
 {#<div class="row">#}
 {#        <?php #}
         <div class="content" style="{{ "width:"~ largeur_total ~"px;height: "~ largeur_total ~"px"}}" id="la_carte">
+        {% spaceless %}
         {% for i in 0..nb_carree %}
 {#        for ($i = 1; $i <= $nb_carree; $i++) {#}
             {% for j in 0..nb_carree %}
 {#            for ($j = 1; $j <= $nb_carree; $j++) {  ?>#}
                 {% set color = "" %}
+                {% set classe_saved = "plus_case" %}
                 {% if reperes[i][j] is defined %}
-                    {% set color = "background-color :"~reperes[i][j] %}
+                    {% set color = "background-color :"~reperes[i][j]['couleur'] %}
+                    {% set isSaved = reperes[i][j]['isSaved'] %}
+                    {% if isSaved %}
+                        {% set classe_saved = "plus_case_repere" %}
+                    {% endif %}     
                 {% endif %}
 {#                {% set largeur_total = 2000 %}#}
-                <div class="plus_case class{{i~'-'~j}}" style="width: 20px;height: 20px;text-align: center;vertical-align: middle;float: left;{{color}}" 
-                     data-abcisse="{{i}}" data-ordonnee="{{j}}" data-carte-id="{{carte.id}}" >
-                    <div style="line-height:1em">+</div>
-                        
+                
+                <div class="{{classe_saved}} class{{i~'-'~j}}" style="{{color}}" data-abcisse="{{i}}" data-ordonnee="{{j}}"  title="{{ i~','~j }}">
+                    <div >+</div>                        
                 </div>
+                
 {#        <?php    }#}
             {% endfor %}
 {#        }?>#}
         {% endfor %}
+        {% endspaceless %}
         </div>
 {#        </div>#}
         
@@ -56,9 +60,9 @@
 {#                  <h5 class="modal-title" id="exampleModalLongTitle">#}
                   <div class="container-fluid" class="modal-title" id="exampleModalLongTitle">
                       <div class="row">
-                          <div class="col-sm txt1"><h5>1</h5></div>
-                          <div class="col-sm"></div>
-                          <div class="col-sm txt2"><h5>2</h5></div>
+                          <div class="txt1"><h5>1</h5></div>
+                          <div class="img-title"></div>
+                          <div class="txt2 pl-4"><h5>2</h5></div>
                       </div>
                   </div>
 {#                    </h5>#}
@@ -68,6 +72,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="modal-block">
+                        
                         <div id="texte1" class="modal-text" style="">
 {#                            <div style="margin-left:auto;margin-right:auto;width:100%;">#}
                                 <div>
@@ -75,7 +80,7 @@
                             </div>
                         </div>
                         <div id="img_modal" style="">
-                            <img src="https://www.staticwhich.co.uk/static/images/products/no-image/no-image-available.png" width="450" />
+                            <img src="https://www.staticwhich.co.uk/static/images/products/no-image/no-image-available.png" />
                         </div>
                         <div id="texte2" class="modal-text" style="">
 {#                            <div style="margin-left:auto;margin-right:auto;width:100%;">#}
@@ -86,16 +91,23 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-{#                  <button type="button" class="btn btn-primary">Save changes</button>#}
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-9"></div>
+                            <div class="col-2">
+                                <input id="repere-name" class="form-control mr-5" type="text" placeholder="Titre" value="{{carte.carteLabel}}" name="label">
+                            </div>
+                            <div class="col-1">
+                                <a id="btn-saved" class="btn ml-5" href="#">Sauvegarder</a>
+                            </div>
+                        </div>
+                    </div>
+                  
                 </div>
               </div>
             </div>
           </div>
-
-
-
-        
+                
     {% endblock %}
     {% block javascripts %}
         <script src="{{ asset('js/jquery3.3.1.min.js') }}" ></script>
@@ -103,21 +115,12 @@
          <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
-    <script type="text/javascript">
-        
-        function addslashes(str) {
-            str = str.replace(/\\/g, '\\\\');
-            str = str.replace(/\'/g, '\\\'');
-            str = str.replace(/\"/g, '\\"');
-            str = str.replace(/\0/g, '\\0');
-            return str;
-        }
+    <script type="text/javascript">   
         
         $(document).ready(function(){
+            var repere_class = "class{{repere.abcisse|default(0)~'-'~repere.ordonnee|default(0)}}";           
 
-            window.scrollTo(500, 1000);
-
-             $(".plus_case").hover(function(){
+            $(".plus_case").hover(function(){
                     $(this).find('div').css({
                         "transform": "rotate(30deg)",
                         "-moz-transform": 'rotate(30deg)',
@@ -139,6 +142,7 @@
                 var previous_datas = $('#saveData').data();
 
                 $('.spiners').show();
+                
                 $.ajax({
                     url:"{{ path('caculateRepere')}}",
                     method:"POST",
@@ -150,14 +154,16 @@
                     var abcisse = repere.abcisse;
                     var ordonnee = repere.ordonnee;
                     var classe = ".class"+abcisse+"-"+ordonnee;
+                    
+                    $('#currentData').attr('data-repereid',repere.id);
 
-                    var texte0 = repere.textes[0].content
 {#                        console.log(repere);#}
                     $('.modal-header .txt1 h5').html(repere.textes[0].livre+", "+repere.textes[0].auteur);
                     $('.modal-header .txt2 h5').html(repere.textes[1].livre+", "+repere.textes[1].auteur);
+                    $('.modal-header .img-title').html(repere.image.image_label);
                     $('.modal-body #texte1 div').html(repere.textes[0].content.replace(/(\r\n|\n|\r)/g, '<br />'));
                     $('.modal-body #img_modal img').attr("src","/web/images/upload/"+repere.image.image_name);
-                    console.log(repere.textes[1].content);
+{#                    console.log(repere.textes[1].content);#}
                     $('.modal-body #texte2 div').html(repere.textes[1].content.replace(/(\r\n|\n|\r)/g, '<br />'));
 
                     {#console.log(repere.major);
@@ -167,9 +173,15 @@
                         $(classe).css("background-color",repere.couleur.major);
                     } else {
                         $(classe).css("background-color",repere.couleur.proxy);
-                    }
+                    }                                     
 
-                    $('.modal').modal('toggle');    
+                    $('.modal').modal('toggle');
+                    
+                    $('#btn-saved').show();
+                    
+                    if(repere.isSaved){
+                        $('#btn-saved').hide();
+                    }
                 })
                 .fail(function(data) {
                     toastr.warning('Plus de combinaisons possible');
@@ -183,17 +195,55 @@
                         $('#saveData').attr('data-prevtexte1',repere.textes[0].id);
                         $('#saveData').attr('data-prevtexte2',repere.textes[1].id);                            
                     }
-
+                    
                     $('.spiners').hide();
-
                 });
 
             };
 
-            $('.plus_case').click(function(){
+            $('.plus_case, .plus_case_repere').click(function(){
                 var element=$(this);
                 calculateRepere(element);
             });
+            
+            $('#btn-saved').click(function(){
+                var currentDatas = $('#currentData').data();
+                var repere_name = $('#repere-name').val();
+                console.log(repere_name);
+        
+                $.ajax({
+                    url:"{{ path('save_repere_ajax')}}",
+                    method:"POST",
+                    data: {currentDatas : currentDatas, repere_name :repere_name}
+                })
+                .done(function(data){
+                    $('.modal').modal('toggle');
+                    $('.class'+currentDatas.abcisse+'-'+currentDatas.ordonnee).removeClass( 'plus_case' ).addClass('plus_case_repere');
+                })
+                .fail(function(){
+                    $('.modal').modal('toggle');
+                    toastr.warning('Sauvegarde impossible');
+                })
+                .always(function(data) {
+                    $('#repere-name').val("");
+                });    
+                 
+                return false;
+            });
+            
+            if(repere_class == "class0-0"){
+                window.scrollTo(500, 1000);
+            } else {
+                
+                var a = Number({{repere.abcisse|default(0)}});
+                var o = Number({{repere.ordonnee|default(0)}});
+                var a = a*2400/150;
+                var o = o*1500/150;
+                
+                window.scrollTo(a, o);
+                
+                calculateRepere($("."+repere_class));
+            }
 
        });
     </script>

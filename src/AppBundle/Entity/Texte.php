@@ -19,6 +19,7 @@ class Texte
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Groups({"ajax"})
      */
     private $id;
 
@@ -26,6 +27,7 @@ class Texte
      * @var string
      *
      * @ORM\Column(name="texte_label", type="string", length=255)
+     * @JMS\Groups({"ajax"})
      */
     private $texteLabel;
 
@@ -33,20 +35,23 @@ class Texte
      * @var string
      *
      * @ORM\Column(name="content", type="text")
+     * @JMS\Groups({"ajax"})
      */
     private $content;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="auteur", type="string", length=255)
+     * @ORM\Column(name="auteur", type="string", length=255, nullable=true)
+     * @JMS\Groups({"ajax"})
      */
     private $auteur;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="livre", type="string", length=255)
+     * @ORM\Column(name="livre", type="string", length=255, nullable=true)
+     * @JMS\Groups({"ajax"})
      */
     private $livre;
 
@@ -62,7 +67,24 @@ class Texte
      * @JMS\Exclude()
      */
     private $reperes;
-
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="isDisabled", type="boolean")
+     */
+    private $isDisabled;
+    
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->reperes = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->createdAt = new \DateTime('NOW');
+        $this->isDisabled = false;
+    }
+    
     /**
      * Get id
      *
@@ -191,15 +213,7 @@ class Texte
     public function getCreatedAt()
     {
         return $this->createdAt;
-    }
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->reperes = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->createdAt = new \DateTime('NOW');
-    }
+    }    
 
     /**
      * Add repere
@@ -233,5 +247,29 @@ class Texte
     public function getReperes()
     {
         return $this->reperes;
+    }
+
+    /**
+     * Set isDisabled
+     *
+     * @param boolean $isDisabled
+     *
+     * @return Texte
+     */
+    public function setIsDisabled($isDisabled)
+    {
+        $this->isDisabled = $isDisabled;
+
+        return $this;
+    }
+
+    /**
+     * Get isDisabled
+     *
+     * @return boolean
+     */
+    public function getIsDisabled()
+    {
+        return $this->isDisabled;
     }
 }

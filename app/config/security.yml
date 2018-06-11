@@ -32,12 +32,17 @@ security:
                 check_path: /admin/login_check
                 provider: fos_userbundle
                 csrf_token_generator: security.csrf.token_manager
+                always_use_default_target_path: true
                 default_target_path: /
             logout:
                 path:   /admin/logout
                 target: /
             logout:       true
             anonymous:    true
+            remember_me:
+                secret:   '%secret%'
+                lifetime: 604800 # 1 week in seconds
+                path:     /
 ##            
 #        home:
 #            anonymous: ~
@@ -52,7 +57,9 @@ security:
     access_control:
         - { path: ^/first_login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/register, role: ROLE_USER }
+        - { path: ^/admin/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/ajax$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/resetting, role: ROLE_USER }
-#        - { path: ^/admin/, role: ROLE_ADMIN }
-        - { path: ^/, roles: ROLE_USER }
+        - { path: ^/admin/, role: ROLE_ADMIN }
+#        - { path: ^/, roles: ROLE_USER }
+        - { path: ^/$, role: IS_AUTHENTICATED_ANONYMOUSLY }

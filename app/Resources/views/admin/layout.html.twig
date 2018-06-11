@@ -10,6 +10,7 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+    {% if is_granted('ROLE_ADMIN') -%}
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
@@ -23,11 +24,14 @@
           </li>
         </ul>
     </div>
-    
+    {%- endif %}
 </nav>
 <div class="container content">
     {% block content %}
     {% endblock %}
 </div>    
 {% endblock %}
-{% block javascripts %}{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/jquery3.3.1.min.js') }}" ></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+{% endblock %}

@@ -21,7 +21,7 @@ div .modal-dialog-centered{
     /*display:flex;*/
     /*justify-content:center;*/
     /*align-items:center;*/
-    width:500px;
+    width:30%;
     /*max-height:600px;*/
     height:600px;
     float: left;
@@ -30,11 +30,15 @@ div .modal-dialog-centered{
 }
 
 #img_modal{
-    width: 500px;
+    width: 40%;
     max-height: 600px;
     float: left;
     overflow: auto;
 }
+#img_modal img{
+    width: 90%;
+    height: auto;
+}    
 a.btn:hover{
     text-decoration: underline;
 }
@@ -43,4 +47,52 @@ a.btn:hover{
 }
 #titre {
     margin-right: 50%;
+}
+.plus_case{
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    vertical-align: middle;
+    float: left;
+    cursor: pointer;
+}
+.plus_case div{
+    line-height:1em;
+}
+
+
+.plus_case_repere{
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    vertical-align: middle;
+    float: left;
+    border: 2px solid black;
+    cursor: pointer;
+}
+.plus_case_repere div{
+    line-height:0.9em;
+}
+#btn-saved, nav a,nav .btn-link, div a{
+    color:black;
+}
+
+.txt1,.txt2{
+    width: 30%;
+    text-align: center;
+}
+.img-title{
+    width: 40%;
+    text-align: center;
+}
+/*hack modal*/
+div.modal div.modal-backdrop {
+    z-index: 0;
+}
+body.modal-open div.modal-backdrop { 
+    z-index: 0; 
+}
+
+#repere-list .list-group{
+    width: 100%;
 }

@@ -16,6 +16,8 @@ use JMS\Serializer\SerializerBuilder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\User\User as CoreUser;
+use FOS\UserBundle\Model\User;
+use JMS\Serializer\SerializationContext;
 
 class DefaultController extends Controller
 {
@@ -65,9 +67,10 @@ class DefaultController extends Controller
             $reperes = $em->getRepository(Repere::class)->findBy(['carte'=>$carte]);
             foreach ($reperes as $repere) {
                 $couleur = $repere->getCouleur();
-                $tabReperes[$repere->getAbcisse()][$repere->getOrdonnee()] = ($repere->getMajor())?$couleur->getMajor():$couleur->getProxy();
+                $isSaved = $repere->getIsSaved();
+                $tabReperes[$repere->getAbcisse()][$repere->getOrdonnee()] = 
+                        ($repere->getMajor())?['isSaved' => $isSaved,'couleur' => $couleur->getMajor()]:['isSaved' => $isSaved,'couleur' => $couleur->getProxy()];
             }
-//            dump($tabReperes);
         }       
                                                               
         return $this->render('default/project.html.twig', [
@@ -77,7 +80,7 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/caculate-repere", name="caculateRepere")
+     * @Route("/ajax/caculate-repere", name="caculateRepere")
      */
     public function caculateRepereAction(Request $request,LoggerInterface $logger)
     {
@@ -91,7 +94,7 @@ class DefaultController extends Controller
         $prevtexte1 = (int)$data['prevtexte1'];
         $prevtexte2 = (int)$data['prevtexte2'];
         
-        $carte = $em->getRepository(Carte::class)->find($carteId);
+        
 //        dump($carte);
         
 //        $encoder = [new JsonEncoder()];
@@ -154,8 +157,10 @@ class DefaultController extends Controller
             }
             
             $nbReperes = count($reperes);
+            $carte = $em->getRepository(Carte::class)->find($carteId);
+            
             if($nbReperes > 0)// il y dejà des points
-            {
+            {                
 //                dump("il y dejà des points");
                 $logger->info("caculateRepereAction : il y dejà des points");
                 $resultat = array_rand(['texte','image']);
@@ -275,6 +280,7 @@ class DefaultController extends Controller
 
             } else {
                 $type = "new";
+                $logger->info("caculateRepereAction : new");
 //                dump("pas de points");
                 $repere = new Repere();
                 $repere->setAbcisse($abcissse)
@@ -285,33 +291,28 @@ class DefaultController extends Controller
                 $couleur = $em->getRepository(Couleur::class)->getRandomEntity();
                 $repere->setCouleur($couleur);
 
-                $image = $em->getRepository(Image::class)->getRandomEntity();
+                $image = $em->getRepository(Image::class)->getRandomEntity($previmage);
                 $repere->setImage($image);
 
                 $text1 = $em->getRepository(Texte::class)->getRandomEntity($prevtexte1);
-                $text2 = $em->getRepository(Texte::class)->getSecondRandomEntity($text1->getAuteur(),$text1->getId());
+                $text2 = $em->getRepository(Texte::class)->getSecondRandomEntity($text1->getAuteur(),$text1->getId(),$prevtexte2);
                 $repere->addTexte($text1);
-                $repere->addTexte($text2);
-                
+                $repere->addTexte($text2);                
                 
                 //TODO vérifier existatnce avant persist
                 $em->persist($repere);
             }
             
-            $em->flush();
-            
+            $em->flush();          
             
         
-        } 
-//        else {
-//            dump('le repere existe');
-//            dump($exist_repere);
-//            $result = json_encode($exist_repere);
-//            dump($result);
-//        }
+        } else {
+            $logger->info("caculateRepereAction : existe");
+        }
+        
 //        dump($repere);
         $logger->info("caculateRepereAction : before serialize");
-        $result = $serializer->serialize($repere, 'json');
+        $result = $serializer->serialize($repere, 'json',SerializationContext::create()->setGroups(array('ajax')));
         $logger->info("caculateRepereAction : after serialize");
         
         return new JsonResponse(['result'=>$result,'type'=>$type]);
@@ -392,8 +393,7 @@ class DefaultController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
-        $cartes = $em->getRepository(Carte::class)->findBy(['user'=>$user]);
-        
+        $cartes = $em->getRepository(Carte::class)->findBy(['user'=>$user]);        
 
         // replace this example code with whatever you need
         return $this->render('carte/index.html.twig', [
@@ -412,9 +412,9 @@ class DefaultController extends Controller
         $reperes = $em->getRepository(Repere::class)->findBy(['carte'=>$carte]);
         foreach ($reperes as $repere) {
             $couleur = $repere->getCouleur();
-            $tabReperes[$repere->getAbcisse()][$repere->getOrdonnee()] = ($repere->getMajor())?$couleur->getMajor():$couleur->getProxy();
-        }
-        
+            $isSaved = $repere->getIsSaved();
+            $tabReperes[$repere->getAbcisse()][$repere->getOrdonnee()] = ($repere->getMajor())?['isSaved' => $isSaved,'couleur' => $couleur->getMajor()]:['isSaved' => $isSaved,'couleur' => $couleur->getProxy()];
+        }        
 
         // replace this example code with whatever you need
         return $this->render('default/project.html.twig', [
@@ -438,9 +438,115 @@ class DefaultController extends Controller
             $em->flush();
         } else {
             throw new Exception();
-        }
-        
+        }        
         
         return $this->redirectToRoute('carte_liste');
+    }
+    
+    /**
+     * @Route("/save/{id}", name="save_repere", requirements={"id" = "\d+"})
+     * @Method({"POST"})
+     */
+    public function saveRepereAction(Request $request, Repere $repere)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $label = $request->request->get('label');
+        
+        if($label)
+        {
+            $repere->setLibelle($label);
+            $em->flush();
+        } else {
+            throw new \Exception();
+        }        
+        
+        return $this->redirectToRoute('repere_liste');
+    }
+    
+    /**
+     * @Route("/save_ajax", name="save_repere_ajax")
+     */
+    public function saveRepereAjaxAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $data = $request->request->all();
+        $repereId = (int)$data['currentDatas']['repereid'];
+        $name = $data['repere_name'];
+        $result = [];
+        
+        $repere = $em->getRepository(Repere::class)->find($repereId);
+        $repere->setIsSaved(true);
+        $repere->setLibelle($name);
+        
+        $em->flush();
+        
+        return new JsonResponse(['result'=>true]);
+    }
+    
+    /**
+     * @Route("/repere/liste", name="repere_liste")
+     */
+    public function repereListeAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+        $reperes = $em->getRepository(Repere::class)->getSaved($user);        
+
+        // replace this example code with whatever you need
+        return $this->render('repere/index.html.twig', [
+            'reperes' => $reperes,
+        ]);
+    }
+    
+    /**
+     * @Route("/repere/{id}/{carte_id}", name="repere_show", requirements={"id" = "\d+","carte_id" = "\d+"})
+     */
+    public function repereShowAction(Request $request, $id, $carte_id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $tabReperes = [];
+        
+        $carte = $em->getRepository(Carte::class)->find($carte_id);
+        $repere = $em->getRepository(Repere::class)->find($id);
+        
+        $reperes = $em->getRepository(Repere::class)->findBy(['carte'=>$carte]);
+        foreach ($reperes as $repere) {
+            $couleur = $repere->getCouleur();
+            $isSaved = $repere->getIsSaved();
+            $tabReperes[$repere->getAbcisse()][$repere->getOrdonnee()] = ($repere->getMajor())?['isSaved' => $isSaved,'couleur' => $couleur->getMajor()]:['isSaved' => $isSaved,'couleur' => $couleur->getProxy()];
+        }
+        
+        // replace this example code with whatever you need
+        return $this->render('default/project.html.twig', [
+            'carte' => $carte,
+            'reperes' => $tabReperes,
+            'repere' => $repere
+        ]);
+    }
+    
+    /**
+     * @Route("/carte/delete/{id}", name="carte_delete")
+     */
+    public function carteDeleteAction(Request $request, Carte $carte)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($carte);
+        
+        $em->flush();
+
+        return $this->redirectToRoute('carte_liste');
+    }
+    
+    /**
+     * @Route("/repere/delete/{id}", name="repere_delete")
+     */
+    public function repereDeleteAction(Request $request, Repere $repere)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $repere->setIsSaved(false);
+        
+        $em->flush();
+
+        return $this->redirectToRoute('repere_liste');
     }
 }
